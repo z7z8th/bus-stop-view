@@ -15,9 +15,9 @@ function cbupdateBusList() {
   <main>
     <img class="logo" src="./assets/logo.png">
     <span class="title">Bus Stop View</span>
-    <div class="op">
+    <!-- <div class="op">
       <ScreenRes></ScreenRes>
-    </div>
+    </div> -->
     <div class="op">
       <BusEditLine @update-bus-list="cbupdateBusList"></BusEditLine>
     </div>
@@ -45,6 +45,7 @@ header {
   float: top;
   border: 1px solid gray;
   padding: 1rem;
+  width: fit-content;
 }
 
 .busstopview {

@@ -5,10 +5,15 @@ defineExpose({ updateBusList })
 import { ref } from 'vue'
 import { busGetBusList, busGetBusStops } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
+import { BusStopDraw } from './BusStopDraw.js'
+
 const busName = ref('')
 const busList = ref('')
 const busStops = ref([])
 const roadName = ref('')
+const canvas = ref(null)
+// const width = ref('1920px')
+// const height = ref('250px')
 let stopIdx = 0
 
 async function genBusStopList() {
@@ -18,16 +23,18 @@ async function genBusStopList() {
 }
 
 function _genBusStopView(idx, road) {
+    let allstops = busStops.value
     let stops
-    if (idx == 0 || idx == busStops.value.length - 1) {
+    if (idx == 0 || idx == allstops.length - 1) {
         // begin and end stops
-        stops = busStops.value.slice(idx, idx + 1)
+        stops = allstops.slice(idx, idx + 1)
     } else {
         // intermediate stops
-        stops = busStops.value.slice(idx - 1, idx + 2)
+        stops = allstops.slice(idx - 1, idx + 2)
     }
 
     console.log('_genBusStopView', stops, road)
+    BusStopDraw(document.getElementById('busstopview'), busName.value, stops, allstops[allstops.length - 1], road)
 }
 
 function genBusStopView(event) {
@@ -52,7 +59,13 @@ updateBusList()
 
 function updateRes(res) {
     console.log('resUpdated', res)
+    let geom = res.split('x')
+    canvas.value.width = `${geom[0]}`
+    canvas.value.height = `${Math.min(geom[1], 250)}`
 }
+
+setTimeout(updateRes, 0, '1920x1080')
+
 const eventBus = EventBusTool.getEventBus()
 eventBus.subscribe('res-change', updateRes)
 
@@ -77,7 +90,7 @@ eventBus.subscribe('res-change', updateRes)
         站点所在道路名：<input type="text" v-model="roadName" @change="roadChange" @keyup="roadChange"
             placeholder="输入对应公交站的路名，比如：北京路" size="28">
         <div>
-            <canvas id="busstopview"></canvas>
+            <canvas ref="canvas" id="busstopview"></canvas>
         </div>
         <!-- <button id="save" @onclick="genStopView">生成线路图</button> -->
     </div>
@@ -119,7 +132,12 @@ li:nth-child(2n) {
     background: rgb(147, 101, 180);
 }
 
+li {
+    border-bottom: 1px sold green;
+}
+
 canvas {
     border: 1px solid gray;
+    background: rgba(255, 255, 255, 255);
 }
 </style>

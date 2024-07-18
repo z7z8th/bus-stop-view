@@ -93,6 +93,7 @@ class EventBus {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 function test1() {
   // test
   const eventBus = new EventBus()
