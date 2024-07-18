@@ -9,6 +9,7 @@ const busName = ref('')
 const busList = ref('')
 const busStops = ref([])
 const roadName = ref('')
+let stopIdx = 0
 
 async function genBusStopList() {
     console.log('genBusStopList')
@@ -16,22 +17,29 @@ async function genBusStopList() {
     busStops.value = await busGetBusStops(busName.value)
 }
 
-function _genBusStopView(stops, road) {
+function _genBusStopView(idx, road) {
+    let stops
+    if (idx == 0 || idx == busStops.value.length - 1) {
+        // begin and end stops
+        stops = busStops.value.slice(idx, idx + 1)
+    } else {
+        // intermediate stops
+        stops = busStops.value.slice(idx - 1, idx + 2)
+    }
 
+    console.log('_genBusStopView', stops, road)
 }
 
 function genBusStopView(event) {
-    let road = roadName.value
     let li = event.target
     let idx = li.__vnode.key
+    stopIdx = idx
     console.log('genBusStopView', li, idx)
-    if (idx == 0 || idx == busStops.value.length - 1) {
-        // begin and end stops
-        _genBusStopView(busStops.value.slice(idx, idx + 1), road)
-    } else {
-        // intermediate stops
-        _genBusStopView(busStops.value.slice(idx - 1, idx + 2), road)
-    }
+    _genBusStopView(idx, roadName.value)
+}
+
+function roadChange() {
+    _genBusStopView(stopIdx, roadName.value)
 }
 
 async function updateBusList() {
@@ -58,7 +66,7 @@ eventBus.subscribe('res-change', updateRes)
             <option v-for="bus of busList" :key="bus">{{ bus }}</option>
         </select>
         <br>
-        经停站：
+        经停站：(点击站名生成对应图片)
         <div>
             <ol>
                 <li v-for="(stop, index) of busStops" :key="index" @click="genBusStopView">{{ stop
@@ -66,7 +74,8 @@ eventBus.subscribe('res-change', updateRes)
                 </li>
             </ol>
         </div>
-        站点所在道路名：<input type="text" v-model="roadName" placeholder="输入对应公交站的路名，比如：北京路" size="28">
+        站点所在道路名：<input type="text" v-model="roadName" @change="roadChange" @keyup="roadChange"
+            placeholder="输入对应公交站的路名，比如：北京路" size="28">
         <div>
             <canvas id="busstopview"></canvas>
         </div>
