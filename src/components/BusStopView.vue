@@ -115,6 +115,8 @@ li {
     vertical-align: top;
     min-height: calc(10%);
     padding: 0.4rem 0.4rem;
+
+    font-size: x-large;
 }
 
 /*
