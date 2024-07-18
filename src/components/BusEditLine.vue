@@ -3,7 +3,6 @@ const emit = defineEmits(['updateBusList'])
 
 import { ref } from 'vue'
 import { busAddLine, busDeleteLine } from './BusStopStor.js'
-import BusStopView from './BusStopView.vue'
 
 const busName = ref('')
 const busStopsStr = ref('')

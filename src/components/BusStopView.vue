@@ -4,9 +4,11 @@ defineExpose({ updateBusList })
 
 import { ref } from 'vue'
 import { busGetBusList, busGetBusStops } from './BusStopStor.js'
+import { EventBusTool } from './EventBus.js';
 const busName = ref('')
 const busList = ref('')
 const busStops = ref([])
+const roadName = ref('')
 
 async function genBusStopList() {
     console.log('genBusStopList')
@@ -14,9 +16,22 @@ async function genBusStopList() {
     busStops.value = await busGetBusStops(busName.value)
 }
 
+function _genBusStopView(stops, road) {
+
+}
+
 function genBusStopView(event) {
-    console.log('genBusStopView', event.target)
-    console.log('genBusStopView', event.target.__vnode.key)
+    let road = roadName.value
+    let li = event.target
+    let idx = li.__vnode.key
+    console.log('genBusStopView', li, idx)
+    if (idx == 0 || idx == busStops.value.length - 1) {
+        // begin and end stops
+        _genBusStopView(busStops.value.slice(idx, idx + 1), road)
+    } else {
+        // intermediate stops
+        _genBusStopView(busStops.value.slice(idx - 1, idx + 2), road)
+    }
 }
 
 async function updateBusList() {
@@ -26,6 +41,12 @@ async function updateBusList() {
 }
 
 updateBusList()
+
+function updateRes(res) {
+    console.log('resUpdated', res)
+}
+const eventBus = EventBusTool.getEventBus()
+eventBus.subscribe('res-change', updateRes)
 
 </script>
 
@@ -45,6 +66,7 @@ updateBusList()
                 </li>
             </ol>
         </div>
+        站点所在道路名：<input type="text" v-model="roadName" placeholder="输入对应公交站的路名，比如：北京路" size="28">
         <div>
             <canvas id="busstopview"></canvas>
         </div>
