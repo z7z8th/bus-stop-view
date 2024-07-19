@@ -52,9 +52,9 @@ function _genBusStopView(idx, road) {
 
 function genBusStopView(event) {
     let li = event.target
-    let idx = li.__vnode.key
+    let idx = li.busStopIdx
+    console.log('genBusStopView', li, `idx ${stopIdxSaved} -> ${idx}`)
     stopIdxSaved = idx
-    console.log('genBusStopView', li, idx)
     _genBusStopView(idx, roadName.value)
 }
 
@@ -97,7 +97,7 @@ setTimeout(updateRes, 0, '1920x1080')
         经停站：(点击站名生成对应图片)
         <div>
             <ol>
-                <li v-for="(stop, index) of busStops" :key="index" @click="genBusStopView">
+                <li v-for="(stop, index) of busStops" :key="index" .busStopIdx="index" @click="genBusStopView">
                     {{ stop }}
                 </li>
             </ol>
