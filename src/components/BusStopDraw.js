@@ -21,9 +21,9 @@ function getLines(ctx, text, maxWidth) {
   return lines
 }
 
-function BusStopDraw(canvas, bname, stops, to, road) {
-  console.log(`BusStopDraw ${bname}: ${stops}(${typeof stops}), →${to} @${road}`)
-  to = `→${to}`
+function BusStopDraw(canvas, bname, stops, finalStop, road) {
+  console.log(`BusStopDraw ${bname}: ${stops}(${typeof stops}), →${finalStop} @${road}`)
+  finalStop = finalStop && `→${finalStop}`
   road = road || '未指定路名'
   let width = canvas.width
   let height = canvas.height
@@ -62,9 +62,9 @@ function BusStopDraw(canvas, bname, stops, to, road) {
 
   // final stop text
   ctx.font = '50px sans'
-  tm = ctx.measureText(to)
+  tm = ctx.measureText(finalStop)
   ctx.fillText(
-    to,
+    finalStop,
     Math.max((bnameWidth - tm.width) / 2, 0),
     bnameHeight + tm.actualBoundingBoxAscent + height * 0.1,
     bnameWidth

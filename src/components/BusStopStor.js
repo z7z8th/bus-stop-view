@@ -74,6 +74,7 @@ async function busGetBusStops(busName) {
   console.log('busGetBusStops')
 
   let store = await openDBStore()
-  return (await promiseReq(store.get(busName))).stops
+  let record = await promiseReq(store.get(busName))
+  return record && record.stops
 }
 export { busAddLine, busDeleteLine, busGetBusList, busGetBusStops }

@@ -5,11 +5,11 @@ import { ref } from 'vue'
 import { busAddLine, busDeleteLine, busGetBusStops } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
 
-const busName = ref('')
-const busStopsStr = ref('')
-
 const eventBus = EventBusTool.getEventBus()
 eventBus.subscribe('line-change', (bname) => { busName.value = bname; loadLine() })
+
+const busName = ref('')
+const busStopsStr = ref('')
 
 function parseBusStopsStr(str) {
     if (!str)
@@ -23,7 +23,14 @@ function parseBusStopsStr(str) {
 async function loadLine() {
     let stopList = await busGetBusStops(busName.value)
     console.log('stop list', stopList)
-    busStopsStr.value = stopList.join(',')
+    if (!stopList) {
+        let msg = `找不到线路：${busName.value}`;
+        console.log(msg)
+        eventBus.publish('message', 'warn', msg)
+    }
+    else {
+        busStopsStr.value = stopList.join(',')
+    }
 }
 
 
@@ -33,6 +40,7 @@ function saveLineStr(bname, bstops) {
     if (!stops.length)
         return
     busAddLine(bname, stops)
+    eventBus.publish('message', 'info', '保存成功')
     emit('updateBusList')
 }
 
@@ -43,6 +51,7 @@ function saveLine() {
 function deleteLine() {
     busDeleteLine(busName.value)
     emit('updateBusList')
+    eventBus.publish('message', 'info', '删除成功')
 }
 
 setTimeout(() => {
@@ -69,12 +78,12 @@ setTimeout(() => {
         <form @submit.prevent="loadLine">
             <span>线路名：</span>
             <input type="text" v-model="busName">
-            <button id="load" @click="loadLine">加载</button>
+            <button id="load">加载</button>
         </form>
         <span class="label-ex">经停站 (地铁图标🚆🚇）：</span>
         <textarea rows="6" cols="100" v-model="busStopsStr"></textarea>
         <div>
-            <button class="right" id="save" @click="saveLine">保存</button>
+            <button class="right" id="save" @click="saveLine">添加/保存</button>
             <button class="right" id="save" @click="deleteLine">删除</button>
         </div>
     </div>

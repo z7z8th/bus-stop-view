@@ -7,6 +7,9 @@ import { busGetBusList, busGetBusStops } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
 import { BusStopDraw } from './BusStopDraw.js'
 
+const eventBus = EventBusTool.getEventBus()
+eventBus.subscribe('res-change', updateRes)
+
 const busName = ref('')
 const busList = ref('')
 const busStops = ref([])
@@ -14,16 +17,22 @@ const roadName = ref('')
 const canvas = ref(null)
 // const width = ref('1920px')
 // const height = ref('250px')
-let stopIdx = 0
-
-const eventBus = EventBusTool.getEventBus()
-eventBus.subscribe('res-change', updateRes)
+let busNameSaved = ''
+let stopIdxSaved = -1
 
 async function genBusStopList() {
-    console.log('genBusStopList')
+    console.log('genBusStopList', typeof (busName.value))
     // busStops.value = ['asdf', 'erwer', 'zxcvz']
-    busStops.value = await busGetBusStops(busName.value)
-    eventBus.publish('line-change', busName.value)
+    let bname = busName.value
+    if (!bname)
+        return
+
+    if (busNameSaved != bname) {
+        busNameSaved = bname
+        stopIdxSaved = -1
+        eventBus.publish('line-change', bname)
+    }
+    busStops.value = await busGetBusStops(bname)
 }
 
 function _genBusStopView(idx, road) {
@@ -44,19 +53,23 @@ function _genBusStopView(idx, road) {
 function genBusStopView(event) {
     let li = event.target
     let idx = li.__vnode.key
-    stopIdx = idx
+    stopIdxSaved = idx
     console.log('genBusStopView', li, idx)
     _genBusStopView(idx, roadName.value)
 }
 
 function roadChange() {
-    _genBusStopView(stopIdx, roadName.value)
+    _genBusStopView(stopIdxSaved, roadName.value)
 }
 
 async function updateBusList() {
     let blist = await busGetBusList()
-    console.log('updateBusList type', typeof blist)
+    console.log('updateBusList type', typeof blist, 'stopIdxSaved', stopIdxSaved)
     busList.value = blist
+    await genBusStopList()
+    if (stopIdxSaved > 0) {
+        _genBusStopView(stopIdxSaved, roadName.value)
+    }
 }
 
 updateBusList()

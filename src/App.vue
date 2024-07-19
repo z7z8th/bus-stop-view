@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import ScreenRes from './components/ScreenRes.vue'
 import BusEditLine from './components/BusEditLine.vue'
 import BusStopView from './components/BusStopView.vue'
+import MessageView from './components/MessageView.vue'
 
 const busstopview = ref(null)
 
@@ -25,6 +26,7 @@ function cbupdateBusList() {
     <div class="op busstopview">
       <BusStopView ref="busstopview"></BusStopView>
     </div>
+    <MessageView></MessageView>
   </main>
 </template>
 
