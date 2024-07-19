@@ -82,8 +82,8 @@ eventBus.subscribe('res-change', updateRes)
         经停站：(点击站名生成对应图片)
         <div>
             <ol>
-                <li v-for="(stop, index) of busStops" :key="index" @click="genBusStopView">{{ stop
-                    }}
+                <li v-for="(stop, index) of busStops" :key="index" @click="genBusStopView">
+                    {{ stop }}
                 </li>
             </ol>
         </div>
@@ -115,8 +115,19 @@ li {
     vertical-align: top;
     min-height: calc(10%);
     padding: 0.4rem 0.4rem;
+    margin: 0.2rem;
 
     font-size: x-large;
+    color: lightcyan;
+}
+
+li:hover {
+    cursor: pointer;
+}
+
+li:checked {
+    border: 3px solid green;
+    background-color: yellow;
 }
 
 /*
@@ -127,11 +138,11 @@ li::after {
 } */
 
 li:nth-child(2n+1) {
-    background: rgb(101, 178, 180);
+    background-color: rgba(101, 178, 180, 128);
 }
 
 li:nth-child(2n) {
-    background: rgb(147, 101, 180);
+    background-color: rgba(147, 101, 180, 128);
 }
 
 li {
