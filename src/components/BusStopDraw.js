@@ -22,11 +22,14 @@ function getLines(ctx, text, maxWidth) {
 }
 
 function parseStopRoadName(text) {
-  let m = text.match(/([^()（）]*)[(（](.*)[)）]/)
+  let m = text.match(/([^()（）]*)[(（](.*)[)）](.*)/)
   if (!m) return [text, undefined]
   console.log('parseStopRoadName', m)
-  if (!m[2].search(/(路|街|道|高架)/)) return [text, undefined]
-  return [m[1], m[2]]
+  if (m[2].search(/(路|街|道|高架)/) < 0) {
+    console.log('not a road name')
+    return [text, undefined]
+  }
+  return [m[1] + (m[3] || ''), m[2]]
 }
 
 function BusStopDraw(canvas, bname, stops, finalStop, road) {
