@@ -1,7 +1,25 @@
 const bnameWidthRatio = 0.2
 const bnameHeightRatio = 0.6
 const roadWidthRatio = 0.2
-const stopRatio = 1 - bnameWidthRatio - roadWidthRatio
+
+function getLines(ctx, text, maxWidth) {
+  var words = text.split('')
+  var lines = []
+  var currentLine = words[0]
+
+  for (var i = 1; i < words.length; i++) {
+    var word = words[i]
+    var width = ctx.measureText(currentLine + word).width
+    if (width < maxWidth) {
+      currentLine += word
+    } else {
+      lines.push(currentLine)
+      currentLine = word
+    }
+  }
+  lines.push(currentLine)
+  return lines
+}
 
 function BusStopDraw(canvas, bname, stops, to, road) {
   console.log(`BusStopDraw ${bname}: ${stops}(${typeof stops}), →${to} @${road}`)
@@ -37,16 +55,18 @@ function BusStopDraw(canvas, bname, stops, to, road) {
   ctx.shadowColor = 'rgb(10 10 10/ 100%)'
   ctx.fillStyle = 'rgb(255 255 255/ 100%)'
   let tm = ctx.measureText(bname)
-  console.log(`text metrics ${tm.width}x${tm.emHeightAscent}`, tm)
+  console.log(`text metrics ${tm.width}x${tm.actualBoundingBoxAscent}`, tm)
   let fm = { x: Math.max((bnameWidth - tm.width) / 2, 0), y: bnameHeight, mw: bnameWidth }
   console.log('bus name fm', fm)
   ctx.fillText(bname, fm.x, fm.y, fm.mw)
-  ctx.font = '30px sans'
+
+  // final stop text
+  ctx.font = '50px sans'
   tm = ctx.measureText(to)
   ctx.fillText(
     to,
     Math.max((bnameWidth - tm.width) / 2, 0),
-    bnameHeight + tm.emHeightAscent + height * 0.1,
+    bnameHeight + tm.actualBoundingBoxAscent + height * 0.1,
     bnameWidth
   )
 
@@ -56,7 +76,7 @@ function BusStopDraw(canvas, bname, stops, to, road) {
   ctx.fillText(
     road,
     roadOffsetX + Math.max((roadWidth - tm.width) / 2, 0),
-    height - Math.max((height - tm.emHeightAscent) / 2, 0),
+    height - Math.max((height - tm.actualBoundingBoxAscent) / 2, 0),
     roadWidth
   )
 
@@ -69,14 +89,14 @@ function BusStopDraw(canvas, bname, stops, to, road) {
     ctx.fillText(
       stops[0],
       stopListOffsetX + Math.max((stopListWidth - tm.width) / 2, 0),
-      height - Math.max((height - tm.emHeightAscent) / 2, 0),
+      height - Math.max((height - tm.actualBoundingBoxAscent) / 2, 0),
       stopListWidth
     )
     return
   }
 
   // middle stops
-  ctx.font = '40px sans'
+  ctx.font = '60px sans'
 
   let stopWidth = stopListWidth / 3
   let stopColors = ['red', 'orange', 'green']
@@ -86,16 +106,16 @@ function BusStopDraw(canvas, bname, stops, to, road) {
     stopListInfo[i] = {
       icon: {
         x: stopListOffsetX + i * stopWidth + stopWidth / 2,
-        y: height / 6,
+        y: height / 4,
         r: height / 12,
         lw: height / 20,
         color: stopColors[i]
       },
       stop: {
-        x: stopListOffsetX + i * stopWidth,
+        x: stopListOffsetX + i * stopWidth + stopWidth / 30,
         y: height / 3,
-        w: stopWidth,
-        h: (height * 2) / 3,
+        mw: stopWidth * (1 - 1 / 10),
+        // h: (height * 2) / 3,
         text: stop
       }
     }
@@ -135,10 +155,14 @@ function BusStopDraw(canvas, bname, stops, to, road) {
     ctx.restore()
 
     // draw stop names
-    let tm = ctx.measureText(stop.text)
+    // let lines = getLines(ctx, stop.text, stop.mw)
+    // let text = lines.join('\r\n')
+    // console.log('stop lines', text)
+    let text = stop.text
+    let tm = ctx.measureText(text)
     stop.x = stop.x + Math.max(stopWidth - tm.width, 0) / 2
-    stop.y = height - Math.max(height - stop.y - tm.emHeightAscent, 0) / 2
-    ctx.fillText(stop.text, stop.x, stop.y, stop.mw)
+    stop.y = height - Math.max(height - stop.y - tm.actualBoundingBoxAscent, 0) / 2
+    ctx.fillText(text, stop.x, stop.y, stop.mw)
   }
 }
 

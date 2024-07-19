@@ -83,9 +83,15 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  font-size: x-large;
 }
 
-/* input,
-button {
+* {
   font-size: x-large;
-} */
+}
+
+h1,
+h2 {
+  font-weight: bold;
+}

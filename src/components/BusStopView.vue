@@ -125,9 +125,8 @@ li:hover {
     cursor: pointer;
 }
 
-li:checked {
-    border: 3px solid green;
-    background-color: yellow;
+li:active {
+    border: 3px solid magenta;
 }
 
 /*
