@@ -2,10 +2,14 @@
 const emit = defineEmits(['updateBusList'])
 
 import { ref } from 'vue'
-import { busAddLine, busDeleteLine } from './BusStopStor.js'
+import { busAddLine, busDeleteLine, busGetBusStops } from './BusStopStor.js'
+import { EventBusTool } from './EventBus.js';
 
 const busName = ref('')
 const busStopsStr = ref('')
+
+const eventBus = EventBusTool.getEventBus()
+eventBus.subscribe('line-change', (bname) => { busName.value = bname; loadLine() })
 
 function parseBusStopsStr(str) {
     if (!str)
@@ -14,6 +18,12 @@ function parseBusStopsStr(str) {
     let stops_tm = stops.map(s => s.trim())
     console.log('stops', stops_tm)
     return stops_tm;
+}
+
+async function loadLine() {
+    let stopList = await busGetBusStops(busName.value)
+    console.log('stop list', stopList)
+    busStopsStr.value = stopList.join(',')
 }
 
 
@@ -29,6 +39,7 @@ function saveLineStr(bname, bstops) {
 function saveLine() {
     saveLineStr(busName.value, busStopsStr.value)
 }
+
 function deleteLine() {
     busDeleteLine(busName.value)
     emit('updateBusList')
@@ -55,13 +66,16 @@ setTimeout(() => {
     <h2>添加/修改线路</h2>
     <!-- <form @submit.prevent="addTodo"></form> -->
     <div>
-        <span>线路名：</span>
-        <input type="text" v-model="busName"><br>
+        <form @submit.prevent="loadLine">
+            <span>线路名：</span>
+            <input type="text" v-model="busName">
+            <button id="load" @click="loadLine">加载</button>
+        </form>
         <span class="label-ex">经停站 (地铁图标🚆🚇）：</span>
         <textarea rows="6" cols="100" v-model="busStopsStr"></textarea>
         <div>
-            <button id="save" @click="saveLine">保存</button>
-            <button id="save" @click="deleteLine">删除</button>
+            <button class="right" id="save" @click="saveLine">保存</button>
+            <button class="right" id="save" @click="deleteLine">删除</button>
         </div>
     </div>
 </template>
@@ -72,8 +86,11 @@ div {
 }
 
 button {
-    float: right;
     margin-left: 2rem;
+}
+
+button.right {
+    float: right;
 }
 
 .label-ex {

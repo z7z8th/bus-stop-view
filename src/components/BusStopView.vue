@@ -16,10 +16,14 @@ const canvas = ref(null)
 // const height = ref('250px')
 let stopIdx = 0
 
+const eventBus = EventBusTool.getEventBus()
+eventBus.subscribe('res-change', updateRes)
+
 async function genBusStopList() {
     console.log('genBusStopList')
     // busStops.value = ['asdf', 'erwer', 'zxcvz']
     busStops.value = await busGetBusStops(busName.value)
+    eventBus.publish('line-change', busName.value)
 }
 
 function _genBusStopView(idx, road) {
@@ -66,8 +70,6 @@ function updateRes(res) {
 
 setTimeout(updateRes, 0, '1920x1080')
 
-const eventBus = EventBusTool.getEventBus()
-eventBus.subscribe('res-change', updateRes)
 
 </script>
 
