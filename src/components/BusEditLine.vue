@@ -2,7 +2,7 @@
 const emit = defineEmits(['updateBusList'])
 
 import { ref } from 'vue'
-import { busAddLine, busDeleteLine, busGetBusStops } from './BusStopStor.js'
+import { busAddLine, busDeleteLine, busGetBusStops, deleteAllLines } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
 import { addTestData } from './BusTestData.js';
 
@@ -11,6 +11,7 @@ eventBus.subscribe('line-change', (bname) => { busName.value = bname; loadLine()
 
 const busName = ref('')
 const busStopsStr = ref('')
+const confirmClear = ref('')
 
 function parseBusStopsStr(str) {
     if (!str)
@@ -61,7 +62,18 @@ function deleteLine() {
     eventBus.publish('message', 'info', '删除成功')
 }
 
-setTimeout(addTestData, 0, saveLineStr)
+function deleteAll() {
+    if (confirmClear.value != 'deleteall') {
+        eventBus.publish('message', 'info', '请输入deleteall')
+        return
+    }
+    confirmClear.value = ''
+    deleteAllLines()
+    emit('updateBusList')
+    eventBus.publish('message', 'info', '清空成功')
+}
+
+// setTimeout(addTestData, 0, saveLineStr)
 
 </script>
 
@@ -80,16 +92,26 @@ setTimeout(addTestData, 0, saveLineStr)
             <button class="right" id="save" @click="saveLine">添加/保存</button>
             <button class="right" id="save" @click="deleteLine">删除</button>
         </div>
+        <div>
+            <hr>
+            <button @click="() => addTestData(saveLineStr)">加载徐州2016年7月的公交数据</button><br>
+            <hr>
+            <button @click="deleteAll" class="delete">删除所有数据，无法恢复</button><br>
+            <span>在右侧输入 deleteall &emsp;</span><input type="text" v-model="confirmClear">
+        </div>
     </div>
 </template>
 
 <style scoped>
 div {
-    padding-bottom: 1.5rem;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 button {
     margin-left: 2rem;
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 button.right {
@@ -98,5 +120,13 @@ button.right {
 
 .label-ex {
     display: block;
+}
+
+hr {
+    width: 100%;
+}
+
+.delete {
+    color: red;
 }
 </style>

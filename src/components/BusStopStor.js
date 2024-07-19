@@ -21,9 +21,17 @@ async function openDB() {
   let db = await promiseReq(request)
   return db
 }
+
 async function openDBStore() {
   let store = (await openDB()).transaction(DB_STORE, 'readwrite').objectStore(DB_STORE)
   return store
+}
+
+async function deleteAllLines() {
+  console.log('deleteAllLines')
+
+  let store = await openDBStore()
+  return await promiseReq(store.clear())
 }
 
 // async function busAddTestData(store) {
@@ -77,4 +85,4 @@ async function busGetBusStops(busName) {
   let record = await promiseReq(store.get(busName))
   return record && record.stops
 }
-export { busAddLine, busDeleteLine, busGetBusList, busGetBusStops }
+export { busAddLine, busDeleteLine, busGetBusList, busGetBusStops, deleteAllLines }
