@@ -21,10 +21,24 @@ function getLines(ctx, text, maxWidth) {
   return lines
 }
 
+function parseStopRoadName(text) {
+  let m = text.match(/([^()（）]*)[(（](.*)[)）]/)
+  if (!m) return [text, undefined]
+  console.log('parseStopRoadName', m)
+  if (!m[2].search(/(路|街|道|高架)/)) return [text, undefined]
+  return [m[1], m[2]]
+}
+
 function BusStopDraw(canvas, bname, stops, finalStop, road) {
   console.log(`BusStopDraw ${bname}: ${stops}(${typeof stops}), →${finalStop} @${road}`)
   finalStop = finalStop && `→${finalStop}`
-  road = road || '未指定路名'
+  let prname = road
+  if (stops.length > 2) {
+    let sname
+    ;[sname, prname] = parseStopRoadName(stops[1])
+    stops[1] = sname || stops[1]
+  }
+  road = road || prname || '未指定路名'
   let width = canvas.width
   let height = canvas.height
   //   let offsetHeight = canvas.offsetHeight
