@@ -22,6 +22,7 @@ function parseBusStopsStr(str) {
     console.log(str)
     let stops = str.split(/,|，|、|～/)
     let stops_tm = stops.map(s => s.trim())
+    stops_tm = stops_tm.filter((v) => v != '')
     console.log('stops', stops_tm)
     return stops_tm;
 }

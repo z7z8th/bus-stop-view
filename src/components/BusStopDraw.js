@@ -25,7 +25,7 @@ function parseStopRoadName(text) {
   let m = text.match(/([^()（）]*)[(（](.*)[)）](.*)/)
   if (!m) return [text, undefined]
   console.log('parseStopRoadName', m)
-  if (m[2].search(/(路|街|道|高架)/) < 0) {
+  if (m[2].search(/[^（(∙](路|街|道|高架)/) < 0) {
     console.log('not a road name')
     return [text, undefined]
   }
@@ -35,11 +35,14 @@ function parseStopRoadName(text) {
 function BusStopDraw(canvas, bname, stops, finalStop, road) {
   console.log(`BusStopDraw ${bname}: ${stops}(${typeof stops}), →${finalStop} @${road}`)
   finalStop = finalStop && `→${finalStop}`
+  let sname
   let prname = road
   if (stops.length > 2) {
-    let sname
     ;[sname, prname] = parseStopRoadName(stops[1])
     stops[1] = sname || stops[1]
+  } else {
+    ;[sname, prname] = parseStopRoadName(stops[0])
+    stops[0] = sname || stops[0]
   }
   road = road || prname || '未指定路名'
   let width = canvas.width
