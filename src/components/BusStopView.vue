@@ -31,6 +31,7 @@ async function genBusStopList() {
         busNameSaved = bname
         stopIdxSaved.value = -1
         eventBus.publish('line-change', bname)
+        DrawText(canvas.value, '未选中站点');
     }
     busStops.value = await busGetBusStops(bname)
 }
@@ -84,7 +85,7 @@ function updateRes(res) {
 
 setTimeout(() => {
     updateRes('1920x1080');
-    DrawText(canvas.value, '无线路信息');
+    DrawText(canvas.value, '未选中线路');
 }, 0)
 /*
 https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
@@ -143,7 +144,7 @@ function saveAsPic() {
             <label class="form-control text-primary">经停站(点击站名生成对应图片)</label>
             <ol class="form-control w-auto">
                 <li class="form-control" v-for="(stop, index) of busStops" :key="index" .busStopIdx="index"
-                    @click="genBusStopView">
+                    @click="genBusStopView" :class="{ li_active: index == stopIdxSaved }">
                     {{ stop }}
                 </li>
             </ol>
@@ -192,8 +193,13 @@ li:hover {
     cursor: pointer;
 }
 
+/*
 li:active {
     border: 1px solid magenta;
+} */
+
+.li_active {
+    background-color: magenta !important;
 }
 
 /*

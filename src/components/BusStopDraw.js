@@ -108,7 +108,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
 
   // final stop text
   ctx.font = '50px sans'
-  DrawTextCentered(ctx, finalStop, {
+  DrawTextCentered(ctx, getStopName(finalStop), {
     x: bnameWidth * 0.05,
     y: bnameHeight,
     w: bnameWidth * 0.9,
@@ -124,7 +124,12 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
   let stopListOffsetX = bnameWidth
   if (stops.length == 1) {
     ctx.font = '100px sans'
-    DrawTextCentered(ctx, stops[0], { x: stopListOffsetX, y: 0, w: stopListWidth, h: height })
+    DrawTextCentered(ctx, getStopName(stops[0]), {
+      x: stopListOffsetX,
+      y: 0,
+      w: stopListWidth,
+      h: height
+    })
     return
   }
 
@@ -194,6 +199,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
 
 function DrawText(canvas, msg) {
   let ctx = canvas.getContext('2d')
+  ctx.reset()
   ctx.font = '130px sans'
   ctx.shadowOffsetX = 2
   ctx.shadowOffsetY = 2
