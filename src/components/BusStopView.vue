@@ -83,7 +83,27 @@ function updateRes(res) {
 
 setTimeout(updateRes, 0, '1920x1080')
 
+function saveImage(imageData, imageName) {
+    console.log('saveImage', imageName)
+    const link = document.createElement('a');
+    link.style.display = 'none';
+    document.body.appendChild(link)
+    link.setAttribute('download', imageName + '.png');
+    link.setAttribute('href', imageData.replace("image/png", "image/octet-stream"));
+    link.click();
+}
+// saveImage(canvas.value.toDataURL(), "myName")
 
+function saveAsPic() {
+    if (stopIdxSaved < 0) {
+        return
+    }
+    let picName = busName.value + '路'
+    if (stopIdxSaved >= 0) {
+        picName += `-第${stopIdxSaved + 1}站-${busStops.value[stopIdxSaved]}`
+    }
+    saveImage(canvas.value.toDataURL(), picName)
+}
 </script>
 
 <template>
@@ -99,7 +119,7 @@ setTimeout(updateRes, 0, '1920x1080')
         <br>
         <div id="stop-list" class="">
             <label class="form-control text-primary">经停站(点击站名生成对应图片)</label>
-            <ol class="w-auto">
+            <ol class="form-control w-auto">
                 <li class="form-control" v-for="(stop, index) of busStops" :key="index" .busStopIdx="index"
                     @click="genBusStopView">
                     {{ stop }}
@@ -113,14 +133,16 @@ setTimeout(updateRes, 0, '1920x1080')
         </div>
         <div>
             <canvas ref="canvas" id="busstopview"></canvas>
+            <button class="btn btn-primary float-end m-2" @click="saveAsPic">保存成图片</button>
         </div>
-        <!-- <button id="save" @onclick="genStopView">生成线路图</button> -->
+        <hr class="invisible">
     </div>
 </template>
 
 <style scoped>
 button {
     float: right;
+    position: relative;
 }
 
 ol,

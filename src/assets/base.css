@@ -100,3 +100,7 @@ h2 {
 .input-group {
   width: fit-content !important;
 }
+
+div {
+  border-radius: 8px;
+}
