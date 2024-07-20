@@ -21,11 +21,26 @@ function getLines(ctx, text, maxWidth) {
   return lines
 }
 
+function getStopName(text) {
+  if (!text) return text
+
+  let m = text.split('@')
+  return m[0]
+}
+
 function parseStopRoadName(text) {
   if (!text) return [undefined, undefined]
-  let m = text.match(/([^()（）]*)[(（](.*)[)）](.*)/)
+
+  let m = text.split('@')
+  if (m.length > 1) {
+    return [m[0], m[1]]
+  }
+
+  m = text.match(/([^()（）]*)[(（](.*)[)）](.*)/)
   if (!m) return [text, undefined]
+
   console.log('parseStopRoadName', m)
+
   if (m[2].search(/[^（(∙](路|街|道|高架)/) < 0) {
     console.log('not a road name')
     return [text, undefined]
@@ -59,7 +74,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
       stops[0] = sname || stops[0]
     }
   }
-  road = road || prname || '未指定路名'
+  road = road || prname || '无路名'
   let width = canvas.width
   let height = canvas.height
   //   let offsetHeight = canvas.offsetHeight
@@ -134,7 +149,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
         y: height / 3,
         w: stopWidth * 0.9,
         h: (height * 2) / 3,
-        text: stop
+        text: getStopName(stop)
       }
     }
   })

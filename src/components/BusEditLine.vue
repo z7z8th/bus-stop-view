@@ -89,7 +89,7 @@ function deleteAll() {
             </div>
         </form>
         <div>
-            <label class="form-control text-primary">经停站 (地铁图标🚆🚇）</label>
+            <label class="form-control text-primary">经停站 (Tips：地铁图标🚆🚇, 使用'车站名@道路名'的方式来保存路名）</label>
             <textarea class="w-100" rows="6" v-model="busStopsStr"></textarea>
         </div>
         <div class="mb-3">
