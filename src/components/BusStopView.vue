@@ -83,8 +83,27 @@ function updateRes(res) {
 
 setTimeout(updateRes, 0, '1920x1080')
 
+/*
+https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+
+    < (less than)
+    > (greater than)
+    : (colon)
+    " (double quote)
+    / (forward slash)
+    \ (backslash)
+    | (vertical bar or pipe)
+    ? (question mark)
+    * (asterisk)
+
+*/
+function normWinFileName(name) {
+    return name.replace(/[<>:"/\\|?*]/g, '_')
+}
+
 function saveImage(imageData, imageName) {
     console.log('saveImage', imageName)
+    imageName = normWinFileName(imageName)
     const link = document.createElement('a');
     link.style.display = 'none';
     document.body.appendChild(link)

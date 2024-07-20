@@ -11,6 +11,7 @@ node_modules
 .DS_Store
 dist
 dist-ssr
+dist-win
 coverage
 *.local
 
@@ -29,3 +30,6 @@ coverage
 
 *.tsbuildinfo
 .~lock.*#
+
+/bus-stop-view*
+/*.zip

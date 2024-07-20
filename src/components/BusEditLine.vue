@@ -16,6 +16,7 @@ const confirmClear = ref('')
 function parseBusStopsStr(str) {
     if (!str)
         return []
+    // eslint-disable-next-line no-unused-vars
     function removeDelimiter(match, ...args) {
         return match.replace(/,|，|、|～/g, '∙')
     }
