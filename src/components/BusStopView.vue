@@ -2,10 +2,10 @@
 
 defineExpose({ updateBusList })
 
-import { ref } from 'vue'
-import { busGetBusList, busGetBusStops } from './BusStopStor.js'
+import { ref, toRaw } from 'vue'
+import { busGetBusList, busGetBusStops, busAddLine } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
-import { BusStopDraw, DrawText } from './BusStopDraw.js'
+import { BusStopDraw, DrawText, getStopName, getRoadName } from './BusStopDraw.js'
 
 const eventBus = EventBusTool.getEventBus()
 eventBus.subscribe('res-change', updateRes)
@@ -17,8 +17,8 @@ const roadName = ref('')
 const canvas = ref(null)
 // const width = ref('1920px')
 // const height = ref('250px')
-let busNameSaved = ''
 const stopIdxSaved = ref(-1)
+let busNameSaved = ''
 
 function reverseStopList() {
     busStops.value.reverse()
@@ -39,6 +39,7 @@ async function genBusStopList() {
         eventBus.publish('line-change', bname)
         DrawText(canvas.value, '未选中站点');
     }
+
     busStops.value = await busGetBusStops(bname)
 }
 
@@ -62,12 +63,29 @@ function genBusStopView(event) {
     let idx = li.busStopIdx
     console.log('genBusStopView', li, `idx ${stopIdxSaved.value} -> ${idx}`)
     stopIdxSaved.value = idx
+
+    let prdname = getRoadName(busStops.value[idx])
+    if (prdname)
+        roadName.value = prdname
+
     _genBusStopView(idx, roadName.value)
 }
 
 function roadChange() {
     console.log('roadChange to ', roadName.value)
     _genBusStopView(stopIdxSaved.value, roadName.value)
+}
+
+async function saveRoadName() {
+    console.log('saveRoadName bus', busName.value, 'idx', stopIdxSaved.value, 'road', roadName.value)
+    if (stopIdxSaved.value < 0 || !busName.value)
+        return;
+    let stname = getStopName(busStops.value[stopIdxSaved.value])
+    if (roadName.value)
+        stname += '@' + roadName.value
+    busStops.value[stopIdxSaved.value] = stname
+    busAddLine(busName.value, toRaw(busStops.value))
+    eventBus.publish('line-change', busName.value)
 }
 
 async function updateBusList() {
@@ -159,9 +177,10 @@ function saveAsPic() {
             </ol>
         </div>
         <div class="input-group mb-3">
-            <label class="input-group-text text-primary" for="road-name">站点所在道路名</label>
+            <label class="input-group-text text-primary" for="road-name">站点所在道路 @</label>
             <input type="text" id="road-name" class="form-control" v-model="roadName" @change="roadChange"
                 @keyup="roadChange" placeholder="输入对应公交站的路名，比如：北京路" size="28">
+            <button class="btn btn-primary" @click="saveRoadName">保存道路名</button>
         </div>
         <div class="view">
             <canvas ref="canvas" id="busstopview"></canvas>

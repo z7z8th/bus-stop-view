@@ -28,6 +28,13 @@ function getStopName(text) {
   return m[0]
 }
 
+function getRoadName(text) {
+  if (!text) return text
+
+  let m = text.split('@')
+  return m.length > 1 ? m[1] : ''
+}
+
 function parseStopRoadName(text) {
   if (!text) return [undefined, undefined]
 
@@ -213,4 +220,4 @@ function DrawText(canvas, msg) {
   DrawTextCentered(ctx, msg, { x: 0, y: 0, w: canvas.width, h: canvas.height })
 }
 
-export { BusStopDraw, DrawText }
+export { BusStopDraw, DrawText, getStopName, getRoadName }
