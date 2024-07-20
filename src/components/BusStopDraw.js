@@ -117,7 +117,12 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
 
   // road name text
   ctx.font = '100px sans'
-  DrawTextCentered(ctx, road, { x: roadOffsetX, y: 0, w: roadWidth, h: height })
+  DrawTextCentered(ctx, road, {
+    x: roadOffsetX + roadWidth * 0.05,
+    y: 0,
+    w: roadWidth * 0.9,
+    h: height
+  })
 
   // stops text
   // first and last stop
