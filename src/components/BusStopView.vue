@@ -89,21 +89,28 @@ setTimeout(updateRes, 0, '1920x1080')
 <template>
     <h2>生成线路图</h2>
     <div>
-        线路名：
-        <select v-model="busName" @change="genBusStopList">
-            <option v-for="bus of busList" :key="bus">{{ bus }}</option>
-        </select>
+        <div class="input-group mb-3">
+            <label class="input-group-text text-primary" for="bus-name-sel">线路名</label>
+            <select id="bus-name-sel" class="form-select" aria-label="选择线路" v-model="busName" @change="genBusStopList">
+                <option value="" selected disabled hidden>选择线路</option>
+                <option v-for="bus of busList" :key="bus">{{ bus }}</option>
+            </select>
+        </div>
         <br>
-        经停站：(点击站名生成对应图片)
-        <div>
-            <ol>
-                <li v-for="(stop, index) of busStops" :key="index" .busStopIdx="index" @click="genBusStopView">
+        <div id="stop-list" class="">
+            <label class="form-control text-primary">经停站(点击站名生成对应图片)</label>
+            <ol class="w-auto">
+                <li class="form-control" v-for="(stop, index) of busStops" :key="index" .busStopIdx="index"
+                    @click="genBusStopView">
                     {{ stop }}
                 </li>
             </ol>
         </div>
-        站点所在道路名：<input type="text" v-model="roadName" @change="roadChange" @keyup="roadChange"
-            placeholder="输入对应公交站的路名，比如：北京路" size="28">
+        <div class="input-group mb-3">
+            <label class="input-group-text text-primary" for="road-name">站点所在道路名</label>
+            <input type="text" id="road-name" class="form-control" v-model="roadName" @change="roadChange"
+                @keyup="roadChange" placeholder="输入对应公交站的路名，比如：北京路" size="28">
+        </div>
         <div>
             <canvas ref="canvas" id="busstopview"></canvas>
         </div>
@@ -118,7 +125,8 @@ button {
 
 ol,
 ul {
-    height: min-content;
+    width: fit-content;
+    height: fit-content;
 }
 
 li {

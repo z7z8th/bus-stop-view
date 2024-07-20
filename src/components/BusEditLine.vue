@@ -82,39 +82,31 @@ function deleteAll() {
     <!-- <form @submit.prevent="addTodo"></form> -->
     <div>
         <form @submit.prevent="loadLine">
-            <span>线路名：</span>
-            <input type="text" v-model="busName">
-            <button id="load">加载</button>
+            <div class="input-group mb-3">
+                <input id="bus-name" class="form-control" placeholder="输入线路名" type="text" v-model="busName">
+                <button id="load" class="btn btn-primary">加载</button>
+            </div>
         </form>
-        <span class="label-ex">经停站 (地铁图标🚆🚇）：</span>
-        <textarea rows="6" cols="100" v-model="busStopsStr"></textarea>
         <div>
-            <button class="right" id="save" @click="saveLine">添加/保存</button>
-            <button class="right" id="save" @click="deleteLine">删除</button>
+            <label class="form-control text-primary">经停站 (地铁图标🚆🚇）</label>
+            <textarea rows="6" cols="100" v-model="busStopsStr"></textarea>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-danger float-end m-2" id="delete" @click="deleteLine">删除</button>
+            <button class="btn btn-primary float-end m-2" id="save" @click="saveLine">添加/保存</button>
         </div>
         <div>
             <hr>
-            <button @click="() => addTestData(saveLineStr)">加载徐州2016年7月的公交数据</button><br>
+            <button class="btn btn-primary" @click="() => addTestData(saveLineStr)">加载徐州2016年7月的公交数据</button><br>
             <hr>
-            <button @click="deleteAll" class="delete">删除所有数据，无法恢复</button><br>
-            <span>在右侧输入 deleteall &emsp;</span><input type="text" v-model="confirmClear">
+            <button class="delete btn btn-danger m-2" @click="deleteAll">删除所有数据，无法恢复</button><br>
+            <div class="alert alert-danger">在右侧输入 deleteall 以确认删除 <input type="text" v-model="confirmClear"></div>
         </div>
     </div>
 </template>
 
 <style scoped>
-div {
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-button {
-    margin-left: 2rem;
-    margin-bottom: 10px;
-    margin-top: 10px;
-}
-
-button.right {
+.right {
     float: right;
 }
 
@@ -126,7 +118,7 @@ hr {
     width: 100%;
 }
 
-.delete {
-    color: red;
+.alert {
+    width: fit-content;
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import ScreenRes from './components/ScreenRes.vue'
+// import ScreenRes from './components/ScreenRes.vue'
 import BusEditLine from './components/BusEditLine.vue'
 import BusStopView from './components/BusStopView.vue'
 import MessageView from './components/MessageView.vue'
