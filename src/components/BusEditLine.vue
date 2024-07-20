@@ -81,30 +81,28 @@ function deleteAll() {
 <template>
     <h2>添加/修改线路</h2>
     <!-- <form @submit.prevent="addTodo"></form> -->
-    <div>
-        <div class="form-control m-2">
-            <form @submit.prevent="loadLine">
-                <div class="input-group mb-3">
-                    <input id="bus-name" class="form-control" placeholder="输入线路名" type="text" v-model="busName">
-                    <button id="load" class="btn btn-primary">加载线路</button>
-                </div>
-            </form>
-            <div>
-                <label class="form-control text-primary">经停站 (地铁图标🚆🚇）</label>
-                <textarea rows="6" cols="100" v-model="busStopsStr"></textarea>
+    <div class="form-control m-2 w-100">
+        <form @submit.prevent="loadLine">
+            <div class="input-group mb-3">
+                <input id="bus-name" class="form-control" placeholder="输入线路名" type="text" v-model="busName">
+                <button id="load" class="btn btn-primary">加载线路</button>
             </div>
-            <div class="mb-3">
-                <button class="btn btn-danger float-start m-2" id="delete" @click="deleteLine">删除线路</button>
-                <button class="btn btn-primary float-end m-2" id="save" @click="saveLine">添加/保存线路</button>
-                <hr class="invisible">
-            </div>
+        </form>
+        <div>
+            <label class="form-control text-primary">经停站 (地铁图标🚆🚇）</label>
+            <textarea class="w-100" rows="6" v-model="busStopsStr"></textarea>
         </div>
-        <div class="form-control m-2">
-            <button class="btn btn-primary" @click="() => addTestData(saveLineStr)">加载徐州2016年7月的公交数据</button><br>
-            <hr>
-            <button class="delete btn btn-danger m-2" @click="deleteAll">删除所有线路，无法恢复</button><br>
-            <div class="alert alert-danger">在右侧输入 deleteall 以确认删除 <input type="text" v-model="confirmClear"></div>
+        <div class="mb-3">
+            <button class="btn btn-danger float-start m-2" id="delete" @click="deleteLine">删除线路</button>
+            <button class="btn btn-primary float-end m-2" id="save" @click="saveLine">添加/保存线路</button>
+            <hr class="invisible">
         </div>
+    </div>
+    <div class="form-control m-2">
+        <button class="btn btn-primary" @click="() => addTestData(saveLineStr)">加载徐州2016年7月的公交数据</button><br>
+        <hr>
+        <button class="delete btn btn-danger m-2" @click="deleteAll">删除所有线路，无法恢复</button><br>
+        <div class="alert alert-danger">在右侧输入 deleteall 以确认删除 <input type="text" v-model="confirmClear"></div>
     </div>
 </template>
 

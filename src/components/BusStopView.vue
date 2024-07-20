@@ -150,7 +150,7 @@ function saveAsPic() {
             <input type="text" id="road-name" class="form-control" v-model="roadName" @change="roadChange"
                 @keyup="roadChange" placeholder="输入对应公交站的路名，比如：北京路" size="28">
         </div>
-        <div>
+        <div class="view">
             <canvas ref="canvas" id="busstopview"></canvas>
             <button class="btn btn-primary float-end m-2" @click="saveAsPic">保存成图片</button>
         </div>
@@ -190,7 +190,7 @@ li:hover {
 }
 
 li:active {
-    border: 3px solid magenta;
+    border: 1px solid magenta;
 }
 
 /*
@@ -214,6 +214,7 @@ li {
 
 canvas {
     border: 1px solid gray;
-    background: rgba(255, 255, 255, 255);
+    background: rgba(255, 255, 255, 0);
+    width: 100%;
 }
 </style>

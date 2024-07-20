@@ -14,8 +14,10 @@ function cbupdateBusList() {
 
 <template>
   <main>
-    <img class="logo" src="./assets/logo.png">
-    <span class="title">Bus Stop View</span>
+    <header>
+      <img class="logo" src="./assets/logo.png">
+      <span class="title">Bus Stop View</span>
+    </header>
     <!-- <div class="op">
       <ScreenRes></ScreenRes>
     </div> -->
@@ -33,6 +35,7 @@ function cbupdateBusList() {
 <style scoped>
 header {
   line-height: 1.5;
+  width: 100%;
 }
 
 .logo {
@@ -47,7 +50,7 @@ header {
   float: top;
   border: 1px solid gray;
   padding: 1rem;
-  width: fit-content;
+  width: 100%;
 }
 
 .busstopview {
