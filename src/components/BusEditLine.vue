@@ -101,8 +101,11 @@ function deleteAll() {
     <div class="form-control m-2">
         <button class="btn btn-primary" @click="() => addTestData(saveLineStr)">加载徐州2016年7月的公交数据</button><br>
         <hr>
-        <button class="delete btn btn-danger m-2" @click="deleteAll">删除所有线路，无法恢复</button><br>
-        <div class="alert alert-danger">在右侧输入 deleteall 以确认删除 <input type="text" v-model="confirmClear"></div>
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="confirmClear">在右侧输入 deleteall 以确认删除 </label>
+            <input id="confirmClear" type="text" class="form-control" v-model="confirmClear">
+            <button class="delete btn btn-danger" @click="deleteAll">删除所有线路，无法恢复</button>
+        </div>
     </div>
 </template>
 

@@ -50,12 +50,14 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
   finalStop = finalStop && `→${finalStop}`
   let sname
   let prname = road
-  if (stops.length > 2) {
-    ;[sname, prname] = parseStopRoadName(stops[1])
-    stops[1] = sname || stops[1]
-  } else {
-    ;[sname, prname] = parseStopRoadName(stops[0])
-    stops[0] = sname || stops[0]
+  if (!road) {
+    if (stops.length > 2) {
+      ;[sname, prname] = parseStopRoadName(stops[1])
+      stops[1] = sname || stops[1]
+    } else {
+      ;[sname, prname] = parseStopRoadName(stops[0])
+      stops[0] = sname || stops[0]
+    }
   }
   road = road || prname || '未指定路名'
   let width = canvas.width
@@ -92,9 +94,9 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
   // final stop text
   ctx.font = '50px sans'
   DrawTextCentered(ctx, finalStop, {
-    x: 0,
+    x: bnameWidth * 0.05,
     y: bnameHeight,
-    w: bnameWidth,
+    w: bnameWidth * 0.9,
     h: height - bnameHeight
   })
 
@@ -128,9 +130,9 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
         color: stopColors[i]
       },
       stop: {
-        x: stopListOffsetX + i * stopWidth,
+        x: stopListOffsetX + i * stopWidth + stopWidth * 0.05,
         y: height / 3,
-        w: stopWidth * (1 - 1 / 10),
+        w: stopWidth * 0.9,
         h: (height * 2) / 3,
         text: stop
       }
