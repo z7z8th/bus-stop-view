@@ -20,6 +20,12 @@ const canvas = ref(null)
 let busNameSaved = ''
 const stopIdxSaved = ref(-1)
 
+function reverseStopList() {
+    busStops.value.reverse()
+    stopIdxSaved.value = -1
+    DrawText(canvas.value, '未选中站点');
+}
+
 async function genBusStopList() {
     console.log('genBusStopList', typeof (busName.value))
     // busStops.value = ['asdf', 'erwer', 'zxcvz']
@@ -141,7 +147,10 @@ function saveAsPic() {
         </div>
         <br>
         <div id="stop-list" class="">
-            <label class="form-control text-primary">经停站(点击站名生成对应图片)</label>
+            <div class="input-group">
+                <label class="input-group-text text-primary" for="reverseLine">经停站(点击站名生成对应图片)</label>
+                <button id="reverseLine" class="btn btn-primary" @click="reverseStopList">换向</button>
+            </div>
             <ol class="form-control w-auto">
                 <li class="form-control" v-for="(stop, index) of busStops" :key="index" .busStopIdx="index"
                     @click="genBusStopView" :class="{ li_active: index == stopIdxSaved }">
