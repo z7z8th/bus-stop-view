@@ -22,6 +22,7 @@ function getLines(ctx, text, maxWidth) {
 }
 
 function parseStopRoadName(text) {
+  if (!text) return [undefined, undefined]
   let m = text.match(/([^()（）]*)[(（](.*)[)）](.*)/)
   if (!m) return [text, undefined]
   console.log('parseStopRoadName', m)
@@ -30,6 +31,18 @@ function parseStopRoadName(text) {
     return [text, undefined]
   }
   return [m[1] + (m[3] || ''), m[2]]
+}
+
+function DrawTextCentered(ctx, text, area) {
+  let tm = ctx.measureText(text)
+  console.log(`text metrics ${tm.width}x${tm.actualBoundingBoxAscent}`, tm)
+  let fm = {
+    x: area.x + Math.max((area.w - tm.width) / 2, 0),
+    y: area.y + area.h - Math.max((area.h - tm.actualBoundingBoxAscent) / 2, 0),
+    mw: area.w
+  }
+  console.log('text', text, 'fill metrics', fm)
+  ctx.fillText(text, fm.x, fm.y, fm.mw)
 }
 
 function BusStopDraw(canvas, bname, stops, finalStop, road) {
@@ -74,44 +87,27 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
   ctx.shadowOffsetY = 2
   ctx.shadowColor = 'rgb(10 10 10/ 100%)'
   ctx.fillStyle = 'rgb(255 255 255/ 100%)'
-  let tm = ctx.measureText(bname)
-  console.log(`text metrics ${tm.width}x${tm.actualBoundingBoxAscent}`, tm)
-  let fm = { x: Math.max((bnameWidth - tm.width) / 2, 0), y: bnameHeight, mw: bnameWidth }
-  console.log('bus name fm', fm)
-  ctx.fillText(bname, fm.x, fm.y, fm.mw)
+  DrawTextCentered(ctx, bname, { x: 0, y: 0, w: bnameWidth, h: bnameHeight })
 
   // final stop text
   ctx.font = '50px sans'
-  tm = ctx.measureText(finalStop)
-  ctx.fillText(
-    finalStop,
-    Math.max((bnameWidth - tm.width) / 2, 0),
-    bnameHeight + tm.actualBoundingBoxAscent + height * 0.1,
-    bnameWidth
-  )
+  DrawTextCentered(ctx, finalStop, {
+    x: 0,
+    y: bnameHeight,
+    w: bnameWidth,
+    h: height - bnameHeight
+  })
 
   // road name text
   ctx.font = '100px sans'
-  tm = ctx.measureText(road)
-  ctx.fillText(
-    road,
-    roadOffsetX + Math.max((roadWidth - tm.width) / 2, 0),
-    height - Math.max((height - tm.actualBoundingBoxAscent) / 2, 0),
-    roadWidth
-  )
+  DrawTextCentered(ctx, road, { x: roadOffsetX, y: 0, w: roadWidth, h: height })
 
   // stops text
   // first and last stop
   let stopListOffsetX = bnameWidth
   if (stops.length == 1) {
     ctx.font = '100px sans'
-    tm = ctx.measureText(stops[0])
-    ctx.fillText(
-      stops[0],
-      stopListOffsetX + Math.max((stopListWidth - tm.width) / 2, 0),
-      height - Math.max((height - tm.actualBoundingBoxAscent) / 2, 0),
-      stopListWidth
-    )
+    DrawTextCentered(ctx, stops[0], { x: stopListOffsetX, y: 0, w: stopListWidth, h: height })
     return
   }
 
@@ -132,10 +128,10 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
         color: stopColors[i]
       },
       stop: {
-        x: stopListOffsetX + i * stopWidth + stopWidth / 30,
+        x: stopListOffsetX + i * stopWidth,
         y: height / 3,
-        mw: stopWidth * (1 - 1 / 10),
-        // h: (height * 2) / 3,
+        w: stopWidth * (1 - 1 / 10),
+        h: (height * 2) / 3,
         text: stop
       }
     }
@@ -175,15 +171,18 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
     ctx.restore()
 
     // draw stop names
-    // let lines = getLines(ctx, stop.text, stop.mw)
-    // let text = lines.join('\r\n')
-    // console.log('stop lines', text)
-    let text = stop.text
-    let tm = ctx.measureText(text)
-    stop.x = stop.x + Math.max(stopWidth - tm.width, 0) / 2
-    stop.y = height - Math.max(height - stop.y - tm.actualBoundingBoxAscent, 0) / 2
-    ctx.fillText(text, stop.x, stop.y, stop.mw)
+    DrawTextCentered(ctx, stop.text, stop)
   }
 }
 
-export { BusStopDraw }
+function DrawText(canvas, msg) {
+  let ctx = canvas.getContext('2d')
+  ctx.font = '130px sans'
+  ctx.shadowOffsetX = 2
+  ctx.shadowOffsetY = 2
+  ctx.shadowColor = 'rgb(10 10 10/ 100%)'
+  ctx.fillStyle = 'rgb(200 200 200/ 100%)'
+  DrawTextCentered(ctx, msg, { x: 0, y: 0, w: canvas.width, h: canvas.height })
+}
+
+export { BusStopDraw, DrawText }

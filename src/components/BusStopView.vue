@@ -5,7 +5,7 @@ defineExpose({ updateBusList })
 import { ref } from 'vue'
 import { busGetBusList, busGetBusStops } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
-import { BusStopDraw } from './BusStopDraw.js'
+import { BusStopDraw, DrawText } from './BusStopDraw.js'
 
 const eventBus = EventBusTool.getEventBus()
 eventBus.subscribe('res-change', updateRes)
@@ -18,7 +18,7 @@ const canvas = ref(null)
 // const width = ref('1920px')
 // const height = ref('250px')
 let busNameSaved = ''
-let stopIdxSaved = -1
+const stopIdxSaved = ref(-1)
 
 async function genBusStopList() {
     console.log('genBusStopList', typeof (busName.value))
@@ -29,7 +29,7 @@ async function genBusStopList() {
 
     if (busNameSaved != bname) {
         busNameSaved = bname
-        stopIdxSaved = -1
+        stopIdxSaved.value = -1
         eventBus.publish('line-change', bname)
     }
     busStops.value = await busGetBusStops(bname)
@@ -53,22 +53,23 @@ function _genBusStopView(idx, road) {
 function genBusStopView(event) {
     let li = event.target
     let idx = li.busStopIdx
-    console.log('genBusStopView', li, `idx ${stopIdxSaved} -> ${idx}`)
-    stopIdxSaved = idx
+    console.log('genBusStopView', li, `idx ${stopIdxSaved.value} -> ${idx}`)
+    stopIdxSaved.value = idx
     _genBusStopView(idx, roadName.value)
 }
 
 function roadChange() {
-    _genBusStopView(stopIdxSaved, roadName.value)
+    console.log('roadChange to ', roadName.value)
+    _genBusStopView(stopIdxSaved.value, roadName.value)
 }
 
 async function updateBusList() {
     let blist = await busGetBusList()
-    console.log('updateBusList type', typeof blist, 'stopIdxSaved', stopIdxSaved)
+    console.log('updateBusList type', typeof blist, 'stopIdxSaved', stopIdxSaved.value)
     busList.value = blist
     await genBusStopList()
-    if (stopIdxSaved > 0) {
-        _genBusStopView(stopIdxSaved, roadName.value)
+    if (stopIdxSaved.value > 0) {
+        _genBusStopView(stopIdxSaved.value, roadName.value)
     }
 }
 
@@ -81,8 +82,10 @@ function updateRes(res) {
     canvas.value.height = `${Math.min(geom[1], 250)}`
 }
 
-setTimeout(updateRes, 0, '1920x1080')
-
+setTimeout(() => {
+    updateRes('1920x1080');
+    DrawText(canvas.value, '无线路信息');
+}, 0)
 /*
 https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
 
@@ -114,12 +117,12 @@ function saveImage(imageData, imageName) {
 // saveImage(canvas.value.toDataURL(), "myName")
 
 function saveAsPic() {
-    if (stopIdxSaved < 0) {
+    if (stopIdxSaved.value < 0) {
         return
     }
     let picName = busName.value + '路'
-    if (stopIdxSaved >= 0) {
-        picName += `-第${stopIdxSaved + 1}站-${busStops.value[stopIdxSaved]}`
+    if (stopIdxSaved.value >= 0) {
+        picName += `-第${stopIdxSaved.value + 1}站-${busStops.value[stopIdxSaved.value]}`
     }
     saveImage(canvas.value.toDataURL(), picName)
 }
@@ -152,7 +155,7 @@ function saveAsPic() {
         </div>
         <div class="view">
             <canvas ref="canvas" id="busstopview"></canvas>
-            <button class="btn btn-primary float-end m-2" @click="saveAsPic">保存成图片</button>
+            <button class="btn btn-primary float-end m-2" @click="saveAsPic" :disabled="stopIdxSaved < 0">保存成图片</button>
         </div>
         <hr class="invisible">
     </div>
