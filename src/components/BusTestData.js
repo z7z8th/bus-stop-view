@@ -10,13 +10,13 @@ let testData = {
   //   // '': '',
 }
 
-function addTestData(addFn) {
+function addBusTestData(addFn) {
   for (let bname of Object.keys(testData)) {
     addFn(bname, testData[bname])
   }
 }
 
-export { addTestData }
+export { addBusTestData }
 
 function parseBusInfo(bstr) {
   let lines = csv.toArrays(bstr, { separator: '|', delimiter: '"' })

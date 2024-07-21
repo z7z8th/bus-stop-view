@@ -15,7 +15,7 @@ async function postBuildCommands() {
 
   let git_rev = execSync('git rev-parse --short HEAD')
   let date = new Date() //('yyyy.MM.dd-hh.mm.ss-TT')
-  date = `${date.getFullYear()}${date.getMonth().toString().padStart(2, '0')}${date.getDay().toString().padStart(2, '0')}-${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}${date.getSeconds().toString().padStart(2, '0')}`
+  date = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}-${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}${date.getSeconds().toString().padStart(2, '0')}`
   let basename = `bus-stop-view-${git_rev.toString().trim()}-${date}`
 
   let output = execSync(`set -e;

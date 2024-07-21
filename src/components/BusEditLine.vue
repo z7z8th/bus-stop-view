@@ -4,7 +4,7 @@ const emit = defineEmits(['updateBusList'])
 import { ref } from 'vue'
 import { dbAddBusLine, dbDeleteBusLine, dbGetBusStops, dbDeleteAllBusLines } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
-import { addTestData } from './BusTestData.js';
+import { addBusTestData } from './BusTestData.js';
 
 const eventBus = EventBusTool.getEventBus()
 eventBus.subscribe('line-change', (bname) => { busName.value = bname; loadBusStopList() })
@@ -107,7 +107,8 @@ function deleteAll() {
         </div>
     </div>
     <div class="form-control m-2">
-        <button class="btn btn-primary" @click="() => addTestData(saveLineStr)">加载徐州2016年7月的公交数据</button><br>
+        <button class="btn btn-primary"
+            @click="() => addBusTestData(saveLineStr)">加载徐州2016年7月的公交数据（已有线路会被覆盖）</button><br>
         <hr>
         <div class="input-group mb-3">
             <label class="input-group-text" for="confirmClear">在右侧输入 deleteall 以确认删除 </label>
