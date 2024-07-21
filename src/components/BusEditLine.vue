@@ -2,15 +2,15 @@
 const emit = defineEmits(['updateBusList'])
 
 import { ref } from 'vue'
-import { busAddLine, busDeleteLine, busGetBusStops, deleteAllLines } from './BusStopStor.js'
+import { dbAddBusLine, dbDeleteBusLine, dbGetBusStops, dbDeleteAllBusLines } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
 import { addTestData } from './BusTestData.js';
 
 const eventBus = EventBusTool.getEventBus()
-eventBus.subscribe('line-change', (bname) => { busName.value = bname; loadLine() })
+eventBus.subscribe('line-change', (bname) => { busName.value = bname; loadBusStopList() })
 
 const busName = ref('')
-const busStopsStr = ref('')
+const busStopListStr = ref('')
 const confirmClear = ref('')
 
 function parseBusStopsStr(str) {
@@ -35,36 +35,40 @@ function parseBusStopsStr(str) {
     return stops_tm;
 }
 
-async function loadLine() {
-    let stopList = await busGetBusStops(busName.value)
+async function loadBusStopList() {
+    let stopList = await dbGetBusStops(busName.value)
     console.log('stop list', stopList)
     if (!stopList) {
+        busStopListStr.value = ''
         let msg = `找不到线路：${busName.value}`;
         console.log(msg)
         eventBus.publish('message', 'warn', msg)
-    }
-    else {
-        busStopsStr.value = stopList.join(',')
+    } else {
+        busStopListStr.value = stopList.join(',')
+        emit('updateBusList')
     }
 }
 
+function loadLine() {
+    eventBus.publish('line-change', busName.value)
+}
 
 function saveLineStr(bname, bstops) {
     console.log('saveLineStr', bname, bstops)
     let stops = parseBusStopsStr(bstops)
     if (!stops.length)
         return
-    busAddLine(bname, stops)
+    dbAddBusLine(bname, stops)
     eventBus.publish('message', 'info', '保存成功')
     emit('updateBusList')
 }
 
 function saveLine() {
-    saveLineStr(busName.value, busStopsStr.value)
+    saveLineStr(busName.value, busStopListStr.value)
 }
 
 function deleteLine() {
-    busDeleteLine(busName.value)
+    dbDeleteBusLine(busName.value)
     emit('updateBusList')
     eventBus.publish('message', 'info', '删除成功')
 }
@@ -75,12 +79,10 @@ function deleteAll() {
         return
     }
     confirmClear.value = ''
-    deleteAllLines()
+    dbDeleteAllBusLines()
     emit('updateBusList')
     eventBus.publish('message', 'info', '清空成功')
 }
-
-// setTimeout(addTestData, 0, saveLineStr)
 
 </script>
 
@@ -96,7 +98,7 @@ function deleteAll() {
         </form>
         <div>
             <label class="form-control text-primary">经停站 (Tips：地铁图标🚆🚇, 使用'车站名@道路名'的方式来保存路名）</label>
-            <textarea class="w-100" rows="6" v-model="busStopsStr"></textarea>
+            <textarea class="w-100" rows="6" v-model="busStopListStr"></textarea>
         </div>
         <div class="mb-3">
             <button class="btn btn-danger float-start m-2" id="delete" @click="deleteLine">删除线路</button>

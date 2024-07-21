@@ -2,7 +2,9 @@ const bnameWidthRatio = 0.2
 const bnameHeightRatio = 0.6
 const roadWidthRatio = 0.2
 
-function getLines(ctx, text, maxWidth) {
+// split long text to multiple lines
+// eslint-disable-next-line no-unused-vars
+function splitLongTextToLines(ctx, text, maxWidth) {
   var words = text.split('')
   var lines = []
   var currentLine = words[0]
@@ -174,9 +176,9 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
   // draw lines connecting icons
   for (let i = 0; i < stopListInfo.length - 1; i++) {
     let start = stopListInfo[i].icon
-    let stop = stopListInfo[i + 1].icon
+    let end = stopListInfo[i + 1].icon
     let startInfo = { x: start.x + start.r, y: start.y, lw: (start.r - start.lw / 2) * 2 }
-    let stopInfo = { x: stop.x - start.r, y: stop.y }
+    let endInfo = { x: end.x - start.r, y: end.y }
 
     ctx.save()
     ctx.lineWidth = startInfo.lw
@@ -184,7 +186,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
     ctx.lineCap = 'butt'
     ctx.beginPath()
     ctx.moveTo(startInfo.x, startInfo.y)
-    ctx.lineTo(stopInfo.x, stopInfo.y)
+    ctx.lineTo(endInfo.x, endInfo.y)
     ctx.stroke()
     ctx.restore()
   }

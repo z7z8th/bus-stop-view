@@ -3,21 +3,21 @@
 defineExpose({ updateBusList })
 
 import { ref, toRaw } from 'vue'
-import { busGetBusList, busGetBusStops, busAddLine } from './BusStopStor.js'
+import { dbGetBusList, dbGetBusStops, dbAddBusLine } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
 import { BusStopDraw, DrawText, getStopName, getRoadName } from './BusStopDraw.js'
 
 const eventBus = EventBusTool.getEventBus()
 eventBus.subscribe('res-change', updateRes)
+eventBus.subscribe('line-change', (bname) => { busName.value = bname; genBusStopList() })
 
 const busName = ref('')
 const busList = ref('')
 const busStops = ref([])
 const roadName = ref('')
 const canvas = ref(null)
-// const width = ref('1920px')
-// const height = ref('250px')
 const stopIdxSaved = ref(-1)
+
 let busNameSaved = ''
 
 function reverseStopList() {
@@ -36,14 +36,21 @@ async function genBusStopList() {
     if (busNameSaved != bname) {
         busNameSaved = bname
         stopIdxSaved.value = -1
-        eventBus.publish('line-change', bname)
         DrawText(canvas.value, '未选中站点');
     }
 
-    busStops.value = await busGetBusStops(bname)
+    busStops.value = await dbGetBusStops(bname)
 }
 
-function _genBusStopView(idx, road) {
+async function lineChange() {
+    // await genBusStopList()
+    eventBus.publish('line-change', busName.value)
+}
+
+function genBusStopViewByIdx() {
+    let idx = stopIdxSaved.value
+    let road = roadName.value
+
     let allstops = busStops.value
     let stops
     if (idx == 0 || idx == allstops.length - 1) {
@@ -58,22 +65,21 @@ function _genBusStopView(idx, road) {
     BusStopDraw(document.getElementById('busstopview'), busName.value, stops, allstops[allstops.length - 1], road)
 }
 
-function genBusStopView(event) {
+function busStopSelChange(event) {
     let li = event.target
     let idx = li.busStopIdx
-    console.log('genBusStopView', li, `idx ${stopIdxSaved.value} -> ${idx}`)
+    console.log('busStopSelChange', li, `idx ${stopIdxSaved.value} -> ${idx}`)
     stopIdxSaved.value = idx
 
-    let prdname = getRoadName(busStops.value[idx])
-    if (prdname)
-        roadName.value = prdname
+    let prdname = getRoadName(busStops.value[idx]) || ''
+    roadName.value = prdname
 
-    _genBusStopView(idx, roadName.value)
+    genBusStopViewByIdx()
 }
 
 function roadChange() {
     console.log('roadChange to ', roadName.value)
-    _genBusStopView(stopIdxSaved.value, roadName.value)
+    genBusStopViewByIdx()
 }
 
 async function saveRoadName() {
@@ -84,17 +90,17 @@ async function saveRoadName() {
     if (roadName.value)
         stname += '@' + roadName.value
     busStops.value[stopIdxSaved.value] = stname
-    busAddLine(busName.value, toRaw(busStops.value))
+    dbAddBusLine(busName.value, toRaw(busStops.value))
     eventBus.publish('line-change', busName.value)
 }
 
 async function updateBusList() {
-    let blist = await busGetBusList()
+    let blist = await dbGetBusList()
     console.log('updateBusList type', typeof blist, 'stopIdxSaved', stopIdxSaved.value)
     busList.value = blist
     await genBusStopList()
     if (stopIdxSaved.value > 0) {
-        _genBusStopView(stopIdxSaved.value, roadName.value)
+        genBusStopViewByIdx()
     }
 }
 
@@ -139,7 +145,6 @@ function saveImage(imageData, imageName) {
     link.setAttribute('href', imageData.replace("image/png", "image/octet-stream"));
     link.click();
 }
-// saveImage(canvas.value.toDataURL(), "myName")
 
 function saveAsPic() {
     if (stopIdxSaved.value < 0) {
@@ -158,7 +163,7 @@ function saveAsPic() {
     <div>
         <div class="input-group mb-3">
             <label class="input-group-text text-primary" for="bus-name-sel">线路名</label>
-            <select id="bus-name-sel" class="form-select" aria-label="选择线路" v-model="busName" @change="genBusStopList">
+            <select id="bus-name-sel" class="form-select" aria-label="选择线路" v-model="busName" @change="lineChange">
                 <option value="" selected disabled hidden>选择线路</option>
                 <option v-for="bus of busList" :key="bus">{{ bus }}</option>
             </select>
@@ -171,7 +176,7 @@ function saveAsPic() {
             </div>
             <ol class="form-control w-auto">
                 <li class="form-control" v-for="(stop, index) of busStops" :key="index" .busStopIdx="index"
-                    @click="genBusStopView" :class="{ li_active: index == stopIdxSaved }">
+                    @click="busStopSelChange" :class="{ li_active: index == stopIdxSaved }">
                     {{ stop }}
                 </li>
             </ol>
@@ -221,21 +226,9 @@ li:hover {
     cursor: pointer;
 }
 
-/*
-li:active {
-    border: 1px solid magenta;
-} */
-
 .li_active {
     background-color: magenta !important;
 }
-
-/*
-li::after {
-    content: "";
-    display: inline-block;
-    width: 100%;
-} */
 
 li:nth-child(2n+1) {
     background-color: rgba(101, 178, 180, 128);

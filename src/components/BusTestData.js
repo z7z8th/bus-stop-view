@@ -22,6 +22,7 @@ function parseBusInfo(bstr) {
   let lines = csv.toArrays(bstr, { separator: '|', delimiter: '"' })
   console.log(lines)
   for (let i = 3; i < lines.length; i++) {
+    // eslint-disable-next-line no-unused-vars
     let [bname, sstop, estop, sbeginTime, sendTime, ebeginTime, eendTime, stops] = lines[i]
     if (!bname || !stops) {
       continue
