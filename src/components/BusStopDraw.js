@@ -84,7 +84,8 @@ function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
       stops[0] = sname || stops[0]
     }
   }
-  road = road || prname || '无路名'
+  road = road || prname || ''
+  let nStops = stops.length
   let width = canvas.width
   let height = canvas.height
   //   let offsetHeight = canvas.offsetHeight
@@ -101,7 +102,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
   // busname rect
   ctx.fillRect(0, 0, bnameWidth, height)
   // road rect
-  ctx.fillStyle = colors.roadNameBg //'rgb(0 255 0 / 30%)'
+  ctx.fillStyle = colors.roadNameBg //'rgb(0 255 0 / 30%)'d
   let roadOffsetX = width - roadWidth
   ctx.fillRect(roadOffsetX, 0, roadWidth, height)
   // stops rect
@@ -141,9 +142,9 @@ function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
   if (stops.length == 1) {
     ctx.font = '100px sans'
     DrawTextCentered(ctx, getStopName(stops[0]), {
-      x: stopListOffsetX,
+      x: stopListOffsetX + stopListWidth * 0.05,
       y: 0,
-      w: stopListWidth,
+      w: stopListWidth * 0.9,
       h: height
     })
     return
@@ -152,7 +153,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
   // middle stops
   ctx.font = '60px sans'
 
-  let stopWidth = stopListWidth / 3
+  let stopWidth = stopListWidth / nStops
   let stopColors = ['red', 'orange', 'green']
   let stopListInfo = []
   stops.forEach((stop, i) => {
