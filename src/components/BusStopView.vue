@@ -265,6 +265,7 @@ function saveAllPicsAsZip() {
             // see FileSaver.js
             // console.log('zip content', content)
             saveBlobAs(content, `${baseName}.zip`);
+            genBusStopViewByIdx()
         });
 }
 
