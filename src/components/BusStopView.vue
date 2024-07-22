@@ -2,7 +2,7 @@
 
 defineExpose({ updateBusList })
 
-import { ref, toRaw } from 'vue'
+import { reactive, ref, toRaw } from 'vue'
 import { dbGetBusList, dbGetBusStops, dbAddBusLine } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
 import { BusStopDraw, DrawText, getStopName, getRoadName } from './BusStopDraw.js'
@@ -17,8 +17,42 @@ const busStops = ref([])
 const roadName = ref('')
 const canvas = ref(null)
 const stopIdxSaved = ref(-1)
+const colors = reactive({
+    busNameBg: '#00ff00', // alpha 4d
+    busStopBg: '#0000ff',  // lapha 99
+    roadNameBg: '#00ff00',  // alpha 4d
+    textColor: '#ffffff',  // alpha ff
+})
 
 let busNameSaved = ''
+
+function invertColor(color) {
+    // console.log('orig color', color)
+    color = color.replace(/^#/, '')
+    let width = color.length
+    for (let w in [3, 4, 6, 8]) {
+        if (width == w)
+            break
+        if (width < w) {
+            color = color.padStart(w, '0')
+            break
+        }
+    }
+    let alpha
+    if (color.length == 4) {
+        alpha = color.substring(3)
+        color = color.substring(0, 3)
+    } else if (color.length == 8) {
+        alpha = color.substring(6)
+        color = color.substring(0, 6)
+    }
+    // console.log('color', color, 'alpha', alpha)
+    let mask = (1 << (color.length * 4)) - 1
+    let invc = '#' + ((Number('0x' + color) ^ mask) >>> 0).toString(16).padStart(color.length, '0').toUpperCase()
+    let fc = invc + (alpha === undefined ? '' : alpha)
+    // console.log('color inverted', invc, 'final', fc)
+    return fc
+}
 
 function reverseStopList() {
     busStops.value.reverse()
@@ -27,7 +61,7 @@ function reverseStopList() {
 }
 
 async function genBusStopList() {
-    console.log('genBusStopList', typeof (busName.value))
+    console.log('genBusStopList', busName.value)
     // busStops.value = ['asdf', 'erwer', 'zxcvz']
     let bname = busName.value
     if (!bname)
@@ -51,6 +85,9 @@ function genBusStopViewByIdx() {
     let idx = stopIdxSaved.value
     let road = roadName.value
 
+    if (idx < 0)
+        return
+
     let allstops = busStops.value
     let stops
     if (idx == 0 || idx == allstops.length - 1) {
@@ -62,7 +99,7 @@ function genBusStopViewByIdx() {
     }
 
     console.log('_genBusStopView', stops, road)
-    BusStopDraw(document.getElementById('busstopview'), busName.value, stops, allstops[allstops.length - 1], road)
+    BusStopDraw(document.getElementById('busstopview'), busName.value, stops, allstops[allstops.length - 1], road, colors)
 }
 
 function busStopSelChange(event) {
@@ -117,6 +154,11 @@ setTimeout(() => {
     updateRes('1920x1080');
     DrawText(canvas.value, '未选中线路');
 }, 0)
+
+function colorChange() {
+    console.log('colorChange', colors, typeof (colors))
+    genBusStopViewByIdx()
+}
 /*
 https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
 
@@ -170,9 +212,9 @@ function saveAsPic() {
         </div>
         <br>
         <div id="stop-list" class="">
-            <div class="input-group">
-                <label class="input-group-text text-primary" for="reverseLine">经停站(点击站名生成对应图片)</label>
-                <button id="reverseLine" class="btn btn-primary" @click="reverseStopList">换向</button>
+            <div class="input-group mb-3">
+                <label class="input-group-text text-primary">经停站(点击站名生成对应图片)</label>
+                <button id="reverseLine" class="btn btn-primary ms-3" @click="reverseStopList">换向</button>
             </div>
             <ol class="form-control w-auto">
                 <li class="form-control" v-for="(stop, index) of busStops" :key="index" .busStopIdx="index"
@@ -186,6 +228,32 @@ function saveAsPic() {
             <input type="text" id="road-name" class="form-control" v-model="roadName" @change="roadChange"
                 @keyup="roadChange" placeholder="输入对应公交站的路名，比如：北京路" size="28">
             <button class="btn btn-primary" @click="saveRoadName">保存道路名</button>
+        </div>
+        <div class="input-group mb-3">
+            <label class="input-group-text text-primary me-3">修改颜色</label>
+            <label class="input-group-text me-3"
+                :style="{ backgroundColor: colors.busNameBg, color: invertColor(colors.busNameBg) }"
+                for="busNameBg">线路背景颜色</label>
+            <input type="color" id="busNameBg" class="form-control" hidden v-model="colors.busNameBg"
+                @change="colorChange">
+
+            <label class="input-group-text me-3"
+                :style="{ backgroundColor: colors.busStopBg, color: invertColor(colors.busStopBg) }"
+                for="busStopBg">站点背景颜色</label>
+            <input type="color" id="busStopBg" class="form-control" hidden v-model="colors.busStopBg"
+                @change="colorChange">
+
+            <label class="input-group-text me-3"
+                :style="{ backgroundColor: colors.roadNameBg, color: invertColor(colors.roadNameBg) }"
+                for="roadNameBg">路名背景颜色</label>
+            <input type="color" id="roadNameBg" class="form-control" hidden v-model="colors.roadNameBg"
+                @change="colorChange">
+
+            <label class="input-group-text rounded-end fw-bold"
+                :style="{ color: colors.textColor, backgroundColor: invertColor(colors.textColor) + '' }"
+                for="textColor">字体颜色</label>
+            <input type="color" id="textColor" class="form-control" hidden v-model="colors.textColor"
+                @change="colorChange">
         </div>
         <div class="view">
             <canvas ref="canvas" id="busstopview"></canvas>
@@ -247,4 +315,9 @@ canvas {
     background: rgba(255, 255, 255, 0);
     width: 100%;
 }
+
+/*
+input[type="color"] {
+    width: 10% !important;
+} */
 </style>

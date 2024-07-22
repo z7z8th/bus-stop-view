@@ -48,10 +48,10 @@ function parseStopRoadName(text) {
   m = text.match(/([^()（）]*)[(（](.*)[)）](.*)/)
   if (!m) return [text, undefined]
 
-  console.log('parseStopRoadName', m)
+  // console.log('parseStopRoadName', m)
 
   if (m[2].search(/[^（(∙](路|街|道|高架)/) < 0) {
-    console.log('not a road name')
+    // console.log('not a road name')
     return [text, undefined]
   }
   return [m[1] + (m[3] || ''), m[2]]
@@ -59,18 +59,18 @@ function parseStopRoadName(text) {
 
 function DrawTextCentered(ctx, text, area) {
   let tm = ctx.measureText(text)
-  console.log(`text metrics ${tm.width}x${tm.actualBoundingBoxAscent}`, tm)
+  // console.log(`text ${text} metrics ${tm.width}x${tm.actualBoundingBoxAscent}`, tm)
   let fm = {
     x: area.x + Math.max((area.w - tm.width) / 2, 0),
     y: area.y + area.h - Math.max((area.h - tm.actualBoundingBoxAscent) / 2, 0),
     mw: area.w
   }
-  console.log('text', text, 'fill metrics', fm)
+  // console.log('text', text, 'fill metrics', fm)
   ctx.fillText(text, fm.x, fm.y, fm.mw)
 }
 
-function BusStopDraw(canvas, bname, stops, finalStop, road) {
-  console.log(`BusStopDraw ${bname}: ${stops}(${typeof stops}), →${finalStop} @${road}`)
+function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
+  console.log(`BusStopDraw ${bname}: ${stops}, →${finalStop} @${road}`)
   finalStop = finalStop && `→${finalStop}`
   let sname
   let prname = road
@@ -87,23 +87,24 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
   let width = canvas.width
   let height = canvas.height
   //   let offsetHeight = canvas.offsetHeight
-  console.log(`canvas ${width}x${height}`)
+  // console.log(`canvas ${width}x${height}`)
 
   let bnameWidth = width * bnameWidthRatio
   let bnameHeight = height * bnameHeightRatio
   let roadWidth = width * roadWidthRatio
-  console.log(`bname geom ${bnameWidth}x${height} ${typeof bnameWidth}`)
+  // console.log(`bname geom ${bnameWidth}x${height} ${typeof bnameWidth}`)
 
   const ctx = canvas.getContext('2d')
   ctx.reset()
-  ctx.fillStyle = 'rgb(0 255 0 / 30%)'
+  ctx.fillStyle = colors.busNameBg + '4D' //'rgb(0 255 0 / 30%)'
   // busname rect
   ctx.fillRect(0, 0, bnameWidth, height)
   // road rect
+  ctx.fillStyle = colors.roadNameBg + '4D' //'rgb(0 255 0 / 30%)'
   let roadOffsetX = width - roadWidth
   ctx.fillRect(roadOffsetX, 0, roadWidth, height)
   // stops rect
-  ctx.fillStyle = 'rgb(0 0 255/ 60%)'
+  ctx.fillStyle = colors.busStopBg + '99' //'rgb(0 0 255/ 60%)'
   let stopListWidth = width - bnameWidth - roadWidth
   ctx.fillRect(bnameWidth, 0, stopListWidth, height)
 
@@ -112,7 +113,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
   ctx.shadowOffsetX = 2
   ctx.shadowOffsetY = 2
   ctx.shadowColor = 'rgb(10 10 10/ 100%)'
-  ctx.fillStyle = 'rgb(255 255 255/ 100%)'
+  ctx.fillStyle = colors.textColor + 'FF' //'rgb(255 255 255/ 100%)'
   DrawTextCentered(ctx, bname, { x: 0, y: 0, w: bnameWidth, h: bnameHeight })
 
   // final stop text
@@ -154,7 +155,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
   let stopColors = ['red', 'orange', 'green']
   let stopListInfo = []
   stops.forEach((stop, i) => {
-    console.log(`[${i}] ${stop}`)
+    // console.log(`[${i}] ${stop}`)
     stopListInfo[i] = {
       icon: {
         x: stopListOffsetX + i * stopWidth + stopWidth / 2,
@@ -183,6 +184,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
     ctx.save()
     ctx.lineWidth = startInfo.lw
     ctx.strokeStyle = 'gray'
+    ctx.strokeStyle += '99'
     ctx.lineCap = 'butt'
     ctx.beginPath()
     ctx.moveTo(startInfo.x, startInfo.y)
@@ -195,7 +197,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road) {
     // draw circle icon
     let icon = info.icon
     let stop = info.stop
-    console.log('icon', icon, 'stop', stop)
+    // console.log('icon', icon, 'stop', stop)
     ctx.save()
     ctx.strokeStyle = icon.color
     ctx.lineWidth = icon.lw

@@ -10,7 +10,7 @@ let DB_VERSION = 1
 let DB_STORE = 'busInfo'
 
 async function openDB() {
-  console.log('open db', DB_NAME, DB_VERSION)
+  // console.log('open db', DB_NAME, DB_VERSION)
   const request = indexedDB.open(DB_NAME, DB_VERSION)
 
   request.onupgradeneeded = function () {
@@ -79,7 +79,7 @@ async function dbGetBusList() {
 }
 
 async function dbGetBusStops(busName) {
-  console.log('dbGetBusStops')
+  console.log('dbGetBusStops', busName)
 
   let store = await openDBStore()
   let record = await promiseReq(store.get(busName))
