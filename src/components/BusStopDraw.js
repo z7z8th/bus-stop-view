@@ -2,6 +2,7 @@ const bnameWidthRatio = 0.2
 const bnameHeightRatio = 0.6
 const roadWidthRatio = 0.2
 
+import { alphaToHex } from './color.js'
 // split long text to multiple lines
 // eslint-disable-next-line no-unused-vars
 function splitLongTextToLines(ctx, text, maxWidth) {
@@ -70,7 +71,7 @@ function DrawTextCentered(ctx, text, area) {
 }
 
 function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
-  console.log(`BusStopDraw ${bname}: ${stops}, →${finalStop} @${road}`)
+  console.log(`BusStopDraw ${bname}: ${stops}, →${finalStop}, @${road},`, colors)
   finalStop = finalStop && `→${finalStop}`
   let sname
   let prname = road
@@ -96,15 +97,15 @@ function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
 
   const ctx = canvas.getContext('2d')
   ctx.reset()
-  ctx.fillStyle = colors.busNameBg + '4D' //'rgb(0 255 0 / 30%)'
+  ctx.fillStyle = colors.busNameBg //'rgb(0 255 0 / 30%)'
   // busname rect
   ctx.fillRect(0, 0, bnameWidth, height)
   // road rect
-  ctx.fillStyle = colors.roadNameBg + '4D' //'rgb(0 255 0 / 30%)'
+  ctx.fillStyle = colors.roadNameBg //'rgb(0 255 0 / 30%)'
   let roadOffsetX = width - roadWidth
   ctx.fillRect(roadOffsetX, 0, roadWidth, height)
   // stops rect
-  ctx.fillStyle = colors.busStopBg + '99' //'rgb(0 0 255/ 60%)'
+  ctx.fillStyle = colors.busStopBg //'rgb(0 0 255/ 60%)'
   let stopListWidth = width - bnameWidth - roadWidth
   ctx.fillRect(bnameWidth, 0, stopListWidth, height)
 
@@ -113,7 +114,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
   ctx.shadowOffsetX = 2
   ctx.shadowOffsetY = 2
   ctx.shadowColor = 'rgb(10 10 10/ 100%)'
-  ctx.fillStyle = colors.textColor + 'FF' //'rgb(255 255 255/ 100%)'
+  ctx.fillStyle = colors.textColor //'rgb(255 255 255/ 100%)'
   DrawTextCentered(ctx, bname, { x: 0, y: 0, w: bnameWidth, h: bnameHeight })
 
   // final stop text
@@ -184,7 +185,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
     ctx.save()
     ctx.lineWidth = startInfo.lw
     ctx.strokeStyle = 'gray'
-    ctx.strokeStyle += '99'
+    ctx.strokeStyle += alphaToHex(colors.alpha)
     ctx.lineCap = 'butt'
     ctx.beginPath()
     ctx.moveTo(startInfo.x, startInfo.y)

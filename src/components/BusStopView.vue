@@ -6,6 +6,7 @@ import { reactive, ref, toRaw } from 'vue'
 import { dbGetBusList, dbGetBusStops, dbAddBusLine } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
 import { BusStopDraw, DrawText, getStopName, getRoadName } from './BusStopDraw.js'
+import { invertColor, splitColor, alphaToHex } from './color.js';
 
 const eventBus = EventBusTool.getEventBus()
 eventBus.subscribe('res-change', updateRes)
@@ -22,37 +23,11 @@ const colors = reactive({
     busStopBg: '#0000ff',  // lapha 99
     roadNameBg: '#00ff00',  // alpha 4d
     textColor: '#ffffff',  // alpha ff
+    alpha: 60,
 })
+let defaultColors = Object.assign({}, toRaw(colors));
 
 let busNameSaved = ''
-
-function invertColor(color) {
-    // console.log('orig color', color)
-    color = color.replace(/^#/, '')
-    let width = color.length
-    for (let w in [3, 4, 6, 8]) {
-        if (width == w)
-            break
-        if (width < w) {
-            color = color.padStart(w, '0')
-            break
-        }
-    }
-    let alpha
-    if (color.length == 4) {
-        alpha = color.substring(3)
-        color = color.substring(0, 3)
-    } else if (color.length == 8) {
-        alpha = color.substring(6)
-        color = color.substring(0, 6)
-    }
-    // console.log('color', color, 'alpha', alpha)
-    let mask = (1 << (color.length * 4)) - 1
-    let invc = '#' + ((Number('0x' + color) ^ mask) >>> 0).toString(16).padStart(color.length, '0').toUpperCase()
-    let fc = invc + (alpha === undefined ? '' : alpha)
-    // console.log('color inverted', invc, 'final', fc)
-    return fc
-}
 
 function reverseStopList() {
     busStops.value.reverse()
@@ -99,7 +74,12 @@ function genBusStopViewByIdx() {
     }
 
     console.log('_genBusStopView', stops, road)
-    BusStopDraw(document.getElementById('busstopview'), busName.value, stops, allstops[allstops.length - 1], road, colors)
+    BusStopDraw(document.getElementById('busstopview'),
+        busName.value,
+        stops,
+        allstops[allstops.length - 1],
+        road,
+        toRaw(colors))
 }
 
 function busStopSelChange(event) {
@@ -155,10 +135,47 @@ setTimeout(() => {
     DrawText(canvas.value, '未选中线路');
 }, 0)
 
-function colorChange() {
-    console.log('colorChange', colors, typeof (colors))
+function loadColors() {
+    let cs = localStorage.getItem('colors')
+    if (!colors)
+        return
+    cs = JSON.parse(cs)
+    for (let fn in cs) {
+        colors[fn] = cs[fn]
+    }
+}
+loadColors()
+
+function saveColors(ctosave) {
+    console.log('saveColors', ctosave)
+    localStorage.setItem('colors', JSON.stringify(ctosave || toRaw(colors)))
+}
+
+function colorChange(event) {
+    let tgt = event && event.target
+    event && console.log('colorChange', tgt.id, tgt.value, typeof (tgt.value), toRaw(colors))
+    let alphaHex = alphaToHex(colors.alpha)
+
+    if (event && tgt.id.endsWith('Bg')) {
+        console.log('forcing alpha', alphaHex, tgt.value)
+        colors[tgt.id] += alphaHex
+    } else {
+        for (let fn in toRaw(colors)) {
+            let color = colors[fn]
+            // console.log(fn, '->', color)
+            if (fn.endsWith('Bg')) {
+                let oc = color;
+                [color,] = splitColor(color)
+                colors[fn] = '#' + color + alphaHex
+                console.log(fn, oc, '->', colors[fn])
+            }
+        }
+    }
+    event && console.log('colorChange', tgt.id, tgt.value)
+    saveColors()
     genBusStopViewByIdx()
 }
+colorChange()
 /*
 https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
 
@@ -230,30 +247,33 @@ function saveAsPic() {
             <button class="btn btn-primary" @click="saveRoadName">保存道路名</button>
         </div>
         <div class="input-group mb-3">
-            <label class="input-group-text text-primary me-3">修改颜色</label>
-            <label class="input-group-text me-3"
-                :style="{ backgroundColor: colors.busNameBg, color: invertColor(colors.busNameBg) }"
+            <label class="input-group-text me-3" :style="{ backgroundColor: colors.busNameBg }"
                 for="busNameBg">线路背景颜色</label>
             <input type="color" id="busNameBg" class="form-control" hidden v-model="colors.busNameBg"
                 @change="colorChange">
 
-            <label class="input-group-text me-3"
-                :style="{ backgroundColor: colors.busStopBg, color: invertColor(colors.busStopBg) }"
+            <label class="input-group-text me-3" :style="{ backgroundColor: colors.busStopBg }"
                 for="busStopBg">站点背景颜色</label>
             <input type="color" id="busStopBg" class="form-control" hidden v-model="colors.busStopBg"
                 @change="colorChange">
 
-            <label class="input-group-text me-3"
-                :style="{ backgroundColor: colors.roadNameBg, color: invertColor(colors.roadNameBg) }"
+            <label class="input-group-text me-3" :style="{ backgroundColor: colors.roadNameBg }"
                 for="roadNameBg">路名背景颜色</label>
             <input type="color" id="roadNameBg" class="form-control" hidden v-model="colors.roadNameBg"
                 @change="colorChange">
 
             <label class="input-group-text rounded-end fw-bold"
-                :style="{ color: colors.textColor, backgroundColor: invertColor(colors.textColor) + '' }"
+                :style="{ color: colors.textColor, backgroundColor: invertColor(colors.textColor) }"
                 for="textColor">字体颜色</label>
             <input type="color" id="textColor" class="form-control" hidden v-model="colors.textColor"
                 @change="colorChange">
+
+            <label class="input-group-text ms-3 rounded-start fw-bold font-monospace" for="alpha">不透明度 {{
+                colors.alpha.toString().padStart(3, '&nbsp;') }}</label>
+            <input type="range" id="alpha" class="form-control form-range" v-model="colors.alpha" @change="colorChange">
+            <button class="btn btn-primary mx-3"
+                @click="saveColors(defaultColors); loadColors(); colorChange()">恢复默认颜色</button>
+
         </div>
         <div class="view">
             <canvas ref="canvas" id="busstopview"></canvas>
@@ -316,8 +336,8 @@ canvas {
     width: 100%;
 }
 
-/*
-input[type="color"] {
-    width: 10% !important;
-} */
+input[type="range"] {
+    width: fit-content !important;
+    height: 2.3rem !important;
+}
 </style>
