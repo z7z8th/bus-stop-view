@@ -245,24 +245,26 @@ function saveAsPic() {
         picName += `-第${idx + 1}站-${busStopList.value[idx]}`
     }
     saveImage(canvas_single.value.toDataURL(), picName)
-    saveImage(canvas_multi.value.toDataURL(), picName + '_m')
+    saveImage(canvas_multi.value.toDataURL(), picName + '++')
 }
 
 function saveAllPicsAsZip() {
     var zip = new JSZip();
-    zip.file(`${busName.value}路公交.txt`, busStopList.value.join(','));
+    let baseName = `${busName.value}路公交各站点图`
+    let topfolder = zip.folder(baseName);
+    topfolder.file(`${busName.value}路公交.txt`, busStopList.value.join(','));
     for (let idx = 0; idx < busStopList.value.length; idx++) {
         genBusStopViewByIdx(idx)
         let picName = `${busName.value}路-第${idx + 1}站-${busStopList.value[idx]}`
-        var img = zip.folder("images");
-        img.file(`${picName}_m.png`, canvasToBlob(canvas_multi), {});
+        var img = topfolder.folder("images");
+        img.file(`${picName}++.png`, canvasToBlob(canvas_multi), {});
         img.file(`${picName}.png`, canvasToBlob(canvas_single), {});
     }
     zip.generateAsync({ type: "blob" })
         .then(function (content) {
             // see FileSaver.js
-            console.log('zip content', content)
-            saveBlobAs(content, `${busName.value}路公交各站点图.zip`);
+            // console.log('zip content', content)
+            saveBlobAs(content, `${baseName}.zip`);
         });
 }
 
