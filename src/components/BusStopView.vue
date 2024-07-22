@@ -26,6 +26,7 @@ const colors = reactive({
     alpha: 60,
 })
 let defaultColors = Object.assign({}, toRaw(colors));
+const showNeighborBusStops = ref(false)
 
 let busNameSaved = ''
 
@@ -65,7 +66,7 @@ function genBusStopViewByIdx() {
 
     let allstops = busStops.value
     let stops
-    if (idx == 0 || idx == allstops.length - 1) {
+    if (idx == 0 || idx == allstops.length - 1 || !showNeighborBusStops.value) {
         // begin and end stops
         stops = allstops.slice(idx, idx + 1)
     } else {
@@ -116,9 +117,7 @@ async function updateBusList() {
     console.log('updateBusList type', typeof blist, 'stopIdxSaved', stopIdxSaved.value)
     busList.value = blist
     await genBusStopList()
-    if (stopIdxSaved.value > 0) {
-        genBusStopViewByIdx()
-    }
+    genBusStopViewByIdx()
 }
 
 updateBusList()
@@ -277,6 +276,16 @@ function saveAsPic() {
         </div>
         <div class="view">
             <canvas ref="canvas" id="busstopview"></canvas>
+
+            <div class="input-group mb-3 float-start">
+                <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="checkbox" value=""
+                        aria-label="Checkbox for following text input" id="showNeighborBusStops"
+                        v-model="showNeighborBusStops" @change="genBusStopViewByIdx">
+                    <label class="" for="showNeighborBusStops">同时显示前后站</label>
+                </div>
+            </div>
+
             <button class="btn btn-primary float-end m-2" @click="saveAsPic" :disabled="stopIdxSaved < 0">保存成图片</button>
         </div>
         <hr class="invisible">
@@ -340,4 +349,8 @@ input[type="range"] {
     width: fit-content !important;
     height: 2.3rem !important;
 }
+
+/* input[type="checkbox"] {
+    height: 2.4rem !important;
+} */
 </style>
