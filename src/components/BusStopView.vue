@@ -36,6 +36,7 @@ function reverseStopList() {
     busStopList.value.reverse()
     stopIdxSaved.value = -1
     DrawText(canvas_multi.value, '未选中站点');
+    DrawText(canvas_single.value, '未选中站点');
 }
 
 async function genBusStopList() {
@@ -49,6 +50,7 @@ async function genBusStopList() {
         busNameSaved = bname
         stopIdxSaved.value = -1
         DrawText(canvas_multi.value, '未选中站点');
+        DrawText(canvas_single.value, '未选中站点');
     }
 
     busStopList.value = await dbGetBusStops(bname)
@@ -138,6 +140,7 @@ function updateRes(res) {
 setTimeout(() => {
     updateRes('1920x1080');
     DrawText(canvas_multi.value, '未选中线路');
+    DrawText(canvas_single.value, '未选中线路');
 }, 0)
 
 function loadColors() {
