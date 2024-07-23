@@ -87,7 +87,7 @@ function deleteAll() {
 </script>
 
 <template>
-    <h2>添加/修改线路</h2>
+    <!-- <h2>添加/修改线路</h2> -->
     <!-- <form @submit.prevent="addTodo"></form> -->
     <div class="form-control m-2 w-100">
         <form @submit.prevent="loadLine">
@@ -100,10 +100,10 @@ function deleteAll() {
             <label class="form-control text-primary">经停站 (Tips：地铁图标🚆🚇, 使用'车站名@道路名'的方式来保存路名）</label>
             <textarea class="w-100" rows="6" v-model="busStopListStr"></textarea>
         </div>
-        <div class="mb-3">
-            <button class="btn btn-danger float-start m-2" id="delete" @click="deleteLine">删除线路</button>
+        <div class="">
+            <button class="btn btn-danger m-2" id="delete" @click="deleteLine">删除线路</button>
             <button class="btn btn-primary float-end m-2" id="save" @click="saveLine">添加/保存线路</button>
-            <hr class="invisible">
+            <!-- <hr class="invisible"> -->
         </div>
     </div>
     <div class="form-control m-2">

@@ -275,7 +275,7 @@ function saveAllPicsAsZip() {
 </script>
 
 <template>
-    <h2>生成线路图</h2>
+    <!-- <h2>生成线路图</h2> -->
     <div>
         <div class="input-group mb-3">
             <label class="input-group-text text-primary" for="bus-name-sel">线路名</label>
