@@ -44,13 +44,18 @@ async function dbDeleteAllBusLines() {
 //   )
 // }
 
-async function dbAddBusLine(busName, busStopsArray) {
-  console.log('dbAddBusLine', busName, busStopsArray)
+async function dbAddBusLine(busName, busStopList, busInfo) {
+  console.log('dbAddBusLine', busName, busStopList, busInfo)
   let db = await openDB()
   let store = db.transaction(DB_STORE, 'readwrite').objectStore(DB_STORE)
+  if (!busInfo) {
+    busInfo = dbGetBusInfo(busName)
+  }
 
   //   busAddTestData(store)
-  let retBusName = await promiseReq(store.put({ busName: busName, stops: busStopsArray }))
+  let retBusName = await promiseReq(
+    store.put({ busName: busName, stops: busStopList, info: busInfo })
+  )
   return retBusName
 }
 
@@ -85,4 +90,13 @@ async function dbGetBusStops(busName) {
   let record = await promiseReq(store.get(busName))
   return record && record.stops
 }
+
+async function dbGetBusInfo(busName) {
+  console.log('dbGetBusInfo', busName)
+
+  let store = await openDBStore()
+  let record = await promiseReq(store.get(busName))
+  return record && record.info
+}
+
 export { dbAddBusLine, dbDeleteBusLine, dbGetBusList, dbGetBusStops, dbDeleteAllBusLines }

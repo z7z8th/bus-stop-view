@@ -52,5 +52,14 @@ export default defineConfig({
       include: './dist/*'
     },
     minify: false
+  },
+  server: {
+    proxy: {
+      '^/(busline|Line)': {
+        target: 'http://xuzhou.bus.iecity.com/',
+        changeOrigin: true
+        // rewrite: (path) => path.replace(/^\/proxy/, '')
+      }
+    }
   }
 })
