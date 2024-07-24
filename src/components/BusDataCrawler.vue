@@ -17,7 +17,7 @@ let busList = {}
 
 async function sleep(d) {
     console.log('sleep', d * 1000)
-    await new Promise((resolve, reject) => {
+    await new Promise((resolve,) => {
         setTimeout(resolve, d * 1000)
     })
 }

@@ -4,7 +4,7 @@ const emit = defineEmits(['updateBusList'])
 import { ref } from 'vue'
 import { dbGetBusList, dbAddBusLine, dbDeleteBusLine, dbGetBusStops, dbGetBusInfo, dbDeleteAllBusLines } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
-import { addBusTestData } from './BusTestData.js';
+// import { addBusTestData } from './BusTestData.js';
 import { saveAs } from './file.js'
 
 const eventBus = EventBusTool.getEventBus()
