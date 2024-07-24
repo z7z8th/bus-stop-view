@@ -7,10 +7,19 @@ import MessageView from './components/MessageView.vue'
 import BusDataCrawler from './components/BusDataCrawler.vue';
 
 const busstopview = ref(null)
+const showCrawler = ref(false)
 
 function cbupdateBusList() {
   busstopview.value.updateBusList()
 }
+
+function checkParams() {
+  let params = new URLSearchParams(location.search)
+  if (params.has('crawler')) {
+    showCrawler.value = true
+  }
+}
+checkParams()
 </script>
 
 <template>
@@ -29,7 +38,7 @@ function cbupdateBusList() {
           aria-selected="true">添加/修改线路</button>
         <button class="nav-link text-nowrap" id="v-pills-view-tab" data-bs-toggle="pill" data-bs-target="#v-pills-view"
           type="button" role="tab" aria-controls="v-pills-view" aria-selected="false">生成线路图</button>
-        <button class="nav-link text-nowrap" id="v-pills-crawler-tab" data-bs-toggle="pill"
+        <button class="nav-link text-nowrap" id="v-pills-crawler-tab" :hidden="!showCrawler" data-bs-toggle="pill"
           data-bs-target="#v-pills-crawler" type="button" role="tab" aria-controls="v-pills-crawler"
           aria-selected="false">在线数据抓取</button>
       </div>
@@ -41,7 +50,8 @@ function cbupdateBusList() {
         <div class="tab-pane fade" id="v-pills-view" role="tabpanel" aria-labelledby="v-pills-view-tab">
           <BusStopView ref="busstopview"></BusStopView>
         </div>
-        <div class="tab-pane fade" id="v-pills-crawler" role="tabpanel" aria-labelledby="v-pills-crawler-tab">
+        <div class="tab-pane fade" id="v-pills-crawler" :hidden="!showCrawler" role="tabpanel"
+          aria-labelledby="v-pills-crawler-tab">
           <BusDataCrawler></BusDataCrawler>
         </div>
       </div>

@@ -12,7 +12,7 @@ const busListCP = ref([])
 const busName = ref('')
 const busStopList = ref([])
 const status = ref('')
-const pageLimitNo = ref(2)
+const pageLimitNo = ref(10)
 let busList = {}
 
 async function sleep(d) {
@@ -43,6 +43,11 @@ async function fetchParseBusList(url) {
         credentials: 'omit',
         referrerPolicy: 'no-referrer',
     })
+    if (resp.status >= 300) {
+        status.value = `failed to fetch/parse ${url}, status ${resp.status}`
+        return []
+    }
+
     let text = await resp.bytes()
     let gbk = new TextDecoder('gbk')
     text = gbk.decode(text)
@@ -68,6 +73,10 @@ async function fetchParseBusStops(url) {
         credentials: 'omit',
         referrerPolicy: 'no-referrer',
     })
+    if (resp.status >= 300) {
+        status.value = `failed to fetch/parse ${url}, status ${resp.status}`
+        return
+    }
     let text = await resp.bytes()
     let gbk = new TextDecoder('gbk')
     text = gbk.decode(text)
@@ -117,13 +126,18 @@ async function startCrawler() {
         currentUrl.value = url
         currentPage.value = parsePageFromUrl(url)
         let [busLinkList, nextUrl] = await fetchParseBusList(url)
+        if (!busLinkList)
+            return
         busListCP.value = Object.keys(busLinkList)
         console.log('nextUrl', nextUrl)
         for (let bname in busLinkList) {
-            await sleep(0.2)
+            await sleep(0.4)
             busName.value = bname
 
             let buses = await fetchParseBusStops(busLinkList[bname])
+            if (!buses) {
+                return
+            }
             busStopList.value = buses
             for (let bnamedir in buses) {
                 let details = buses[bnamedir]
@@ -133,12 +147,13 @@ async function startCrawler() {
         }
         console.log('busList', busList)
         url = nextUrl
-        localStorage.setItem('currentUrl', url)
+        if (url)
+            localStorage.setItem('currentUrl', url)
 
         if (--n == 0)
             break
 
-        await sleep(1)
+        await sleep(3)
     } while (url);
     console.log('=============== crawling down')
     status.value = '抓取完成'
@@ -160,7 +175,7 @@ function saveCrawledData() {
 
         <div class="input-group mb-3">
             <label class="input-group-text">从</label>
-            <input type="text" v-model="startUrl">
+            <input type="text" v-model="startUrl" placeholder="/busline-----10.html">
             <label class="input-group-text">开始抓取</label>
             <input type="text" size="5" v-model="pageLimitNo">
             <label class="input-group-text">页</label>
