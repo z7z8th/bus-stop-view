@@ -2,16 +2,30 @@
 const emit = defineEmits(['updateBusList'])
 
 import { ref } from 'vue'
-import { dbAddBusLine, dbDeleteBusLine, dbGetBusStops, dbDeleteAllBusLines } from './BusStopStor.js'
+import { dbGetBusList, dbAddBusLine, dbDeleteBusLine, dbGetBusStops, dbDeleteAllBusLines } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
 import { addBusTestData } from './BusTestData.js';
+import { saveAs } from './file.js'
 
 const eventBus = EventBusTool.getEventBus()
 eventBus.subscribe('line-change', (bname) => { busName.value = bname; loadBusStopList() })
 
+const busList = ref([])
 const busName = ref('')
 const busStopListStr = ref('')
 const confirmClear = ref('')
+
+async function updateBusList() {
+    let blist = await dbGetBusList()
+    console.log('updateBusList type', typeof blist)
+    busList.value = blist
+}
+updateBusList()
+
+async function triggerUpdateBusList() {
+    emit('updateBusList')
+    updateBusList()
+}
 
 function parseBusStopsStr(str) {
     if (!str)
@@ -45,7 +59,7 @@ async function loadBusStopList() {
         eventBus.publish('message', 'warn', msg)
     } else {
         busStopListStr.value = stopList.join(',')
-        emit('updateBusList')
+        triggerUpdateBusList()
     }
 }
 
@@ -60,7 +74,7 @@ function saveLineStr(bname, bstops) {
         return
     dbAddBusLine(bname, stops)
     eventBus.publish('message', 'info', '保存成功')
-    emit('updateBusList')
+    triggerUpdateBusList()
 }
 
 function saveLine() {
@@ -69,7 +83,7 @@ function saveLine() {
 
 function deleteLine() {
     dbDeleteBusLine(busName.value)
-    emit('updateBusList')
+    triggerUpdateBusList()
     eventBus.publish('message', 'info', '删除成功')
 }
 
@@ -80,10 +94,45 @@ function deleteAll() {
     }
     confirmClear.value = ''
     dbDeleteAllBusLines()
-    emit('updateBusList')
+    triggerUpdateBusList()
     eventBus.publish('message', 'info', '清空成功')
 }
 
+async function loadLineFromFile(triggerSel) {
+    let input = document.getElementById('inputFile')
+    if (triggerSel === true) {
+        input.click()
+        return
+    }
+
+    let file = input.files[0]
+    let content = await file.text()
+    let obj = JSON.parse(content)
+    for (let bname in obj) {
+        dbAddBusLine(bname, obj[bname])
+    }
+    eventBus.publish('message', 'info', '保存成功')
+    triggerUpdateBusList()
+}
+
+async function saveLineToFile(savealllines) {
+    if (savealllines) {
+        let blist = await dbGetBusList()
+        let obj = {}
+        for (let bname of blist) {
+            obj[bname] = await dbGetBusStops(bname)
+        }
+        saveAs(JSON.stringify(obj), '全部公交线路数据.json')
+    } else {
+        if (!busName.value) {
+            eventBus.publish('message', 'warning', '未选中线路')
+            return
+        }
+        let obj = {}
+        obj[busName.value] = await dbGetBusStops(busName.value)
+        saveAs(JSON.stringify(obj), `${busName.value}路公交线路数据.json`)
+    }
+}
 </script>
 
 <template>
@@ -92,8 +141,12 @@ function deleteAll() {
     <div class="form-control m-2 w-100">
         <form @submit.prevent="loadLine">
             <div class="input-group mb-3">
-                <input id="bus-name" class="form-control" placeholder="输入线路名" type="text" v-model="busName">
+                <input id="bus-name" list="bus-list" class="form-control" placeholder="输入线路名" type="text"
+                    v-model="busName">
                 <button id="load" class="btn btn-primary">加载线路</button>
+                <datalist id="bus-list">
+                    <option v-for="bus in busList" :key="bus">{{ bus }}</option>
+                </datalist>
             </div>
         </form>
         <div>
@@ -107,6 +160,20 @@ function deleteAll() {
         </div>
     </div>
     <div class="form-control m-2">
+        <div class="input-group mb-3">
+            <input type="file" class="form-control" id="inputFile" hidden @change="loadLineFromFile">
+            <button class="btn btn-primary rounded-start me-3" for="inputFile"
+                @click="() => loadLineFromFile(true)">从文件加载线路</button>
+            <!-- </div>
+        <div class="input-group mb-3"> -->
+            <button class="btn btn-primary me-3" for="outputFileAllBuses" @click="() => saveLineToFile(true)">
+                💾 保存<span class="fw-bold">所有</span>线路到文件</button>
+            <button class="btn btn-primary me-3" for="outputFileCurrentBus" @click="() => saveLineToFile(false)">
+                💾 保存<span class="fw-bold">当前</span>线路到文件</button>
+        </div>
+
+    </div>
+    <div class=" form-control m-2">
         <button class="btn btn-primary"
             @click="() => addBusTestData(saveLineStr)">加载徐州2016年7月的公交数据（已有线路会被覆盖）</button><br>
         <hr>

@@ -11,6 +11,7 @@ const show = ref(false)
 let levelColors = {
     error: 'red',
     warn: 'yellow',
+    warning: 'yellow',
     info: 'white',
     debug: 'gray',
 }

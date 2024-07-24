@@ -3,18 +3,20 @@
 defineExpose({ updateBusList })
 
 import { reactive, ref, toRaw } from 'vue'
+import JSZip from 'jszip'
+
 import { dbGetBusList, dbGetBusStops, dbAddBusLine } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
 import { BusStopDraw, DrawText, getStopName, getRoadName } from './BusStopDraw.js'
 import { invertColor, splitColor, alphaToHex } from './color.js';
-import JSZip from 'jszip'
+import { saveAs } from './file.js'
 
 const eventBus = EventBusTool.getEventBus()
 eventBus.subscribe('res-change', updateRes)
 eventBus.subscribe('line-change', (bname) => { busName.value = bname; genBusStopList() })
 
 const busName = ref('')
-const busList = ref('')
+const busList = ref([])
 const busStopList = ref([])
 const roadName = ref('')
 const canvas_multi = ref(null)
@@ -198,31 +200,7 @@ https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
     * (asterisk)
 
 */
-function normWinFileName(name) {
-    return name.replace(/[<>:"/\\|?*]/g, '_')
-}
 
-function saveImage(imageData, imageName) {
-    console.log('saveImage', imageName)
-    imageName = normWinFileName(imageName)
-    const link = document.createElement('a');
-    link.style.display = 'none';
-    document.body.appendChild(link)
-    link.setAttribute('download', imageName + '.png');
-    link.setAttribute('href', imageData.replace("image/png", "image/octet-stream"));
-    link.click();
-}
-
-function saveBlobAs(data, fileName) {
-    console.log('saveImage', fileName)
-    fileName = normWinFileName(fileName)
-    const link = document.createElement('a');
-    link.style.display = 'none';
-    document.body.appendChild(link)
-    link.setAttribute('download', fileName);
-    link.setAttribute('href', URL.createObjectURL(data));
-    link.click();
-}
 
 async function canvasToBlob(canvas) {
     let blobpromise = new Promise((resolve, reject) => {
@@ -247,8 +225,8 @@ function saveAsPic() {
     if (idx >= 0) {
         picName += `-第${idx + 1}站-${busStopList.value[idx]}`
     }
-    saveImage(canvas_single.value.toDataURL(), picName)
-    saveImage(canvas_multi.value.toDataURL(), picName + '++')
+    saveAs(canvas_single.value.toDataURL(), picName + '.png')
+    saveAs(canvas_multi.value.toDataURL(), picName + '++.png')
 }
 
 function saveAllPicsAsZip() {
@@ -267,7 +245,7 @@ function saveAllPicsAsZip() {
         .then(function (content) {
             // see FileSaver.js
             // console.log('zip content', content)
-            saveBlobAs(content, `${baseName}.zip`);
+            saveAs(content, `${baseName}.zip`);
             genBusStopViewByIdx()
         });
 }

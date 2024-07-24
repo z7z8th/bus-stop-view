@@ -28,8 +28,8 @@ function cbupdateBusList() {
           aria-selected="true">添加/修改线路</button>
         <button class="nav-link text-nowrap" id="v-pills-view-tab" data-bs-toggle="pill" data-bs-target="#v-pills-view"
           type="button" role="tab" aria-controls="v-pills-view" aria-selected="false">生成线路图</button>
-
       </div>
+
       <div class="tab-content" id="v-pills-tabContent">
         <div class="tab-pane fade show active" id="v-pills-edit" role="tabpanel" aria-labelledby="v-pills-edit-tab">
           <BusEditLine @update-bus-list="cbupdateBusList"></BusEditLine>
