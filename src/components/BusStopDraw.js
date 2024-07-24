@@ -77,7 +77,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
   let prname = road
   if (!road) {
     if (stops.length > 2) {
-      ;[sname, prname] = parseStopRoadName(stops[1])
+      ;[sname, prname] = parseStopRoadName(stops[0])
       stops[1] = sname || stops[1]
     } else {
       ;[sname, prname] = parseStopRoadName(stops[0])

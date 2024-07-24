@@ -2,7 +2,7 @@
 const emit = defineEmits(['updateBusList'])
 
 import { ref } from 'vue'
-import { dbGetBusList, dbAddBusLine, dbDeleteBusLine, dbGetBusStops, dbDeleteAllBusLines } from './BusStopStor.js'
+import { dbGetBusList, dbAddBusLine, dbDeleteBusLine, dbGetBusStops, dbGetBusInfo, dbDeleteAllBusLines } from './BusStopStor.js'
 import { EventBusTool } from './EventBus.js';
 import { addBusTestData } from './BusTestData.js';
 import { saveAs } from './file.js'
@@ -14,6 +14,7 @@ const busList = ref([])
 const busName = ref('')
 const busStopListStr = ref('')
 const confirmClear = ref('')
+const busInfo = ref({})
 
 async function updateBusList() {
     let blist = await dbGetBusList()
@@ -60,6 +61,8 @@ async function loadBusStopList() {
     } else {
         busStopListStr.value = stopList.join(',')
         triggerUpdateBusList()
+        busInfo.value = await dbGetBusInfo(busName.value)
+        console.log('busInfo', busInfo)
     }
 }
 
@@ -109,7 +112,7 @@ async function loadLineFromFile(triggerSel) {
     let content = await file.text()
     let obj = JSON.parse(content)
     for (let bname in obj) {
-        dbAddBusLine(bname, obj[bname])
+        dbAddBusLine(bname, obj[bname].stops, obj[bname].info)
     }
     eventBus.publish('message', 'info', '保存成功')
     triggerUpdateBusList()
@@ -120,7 +123,10 @@ async function saveLineToFile(savealllines) {
         let blist = await dbGetBusList()
         let obj = {}
         for (let bname of blist) {
-            obj[bname] = await dbGetBusStops(bname)
+            obj[bname] = {
+                stops: await dbGetBusStops(bname),
+                info: await dbGetBusInfo(bname),
+            }
         }
         saveAs(JSON.stringify(obj), '全部公交线路数据.json')
     } else {
@@ -129,7 +135,11 @@ async function saveLineToFile(savealllines) {
             return
         }
         let obj = {}
-        obj[busName.value] = await dbGetBusStops(busName.value)
+        let bname = busName.value
+        obj[bname] = {
+            stops: await dbGetBusStops(bname),
+            info: await dbGetBusInfo(bname),
+        }
         saveAs(JSON.stringify(obj), `${busName.value}路公交线路数据.json`)
     }
 }
@@ -149,6 +159,16 @@ async function saveLineToFile(savealllines) {
                 </datalist>
             </div>
         </form>
+        <div>
+            <table class="table">
+                <tbody>
+                    <tr v-for="(value, key, ) in busInfo" :key="key">
+                        <td>{{ key }}</td>
+                        <td>{{ value }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div>
             <label class="form-control text-primary">经停站 (Tips：地铁图标🚆🚇, 使用'车站名@道路名'的方式来保存路名）</label>
             <textarea class="w-100" rows="6" v-model="busStopListStr"></textarea>

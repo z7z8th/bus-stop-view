@@ -73,6 +73,8 @@ function genBusStopViewByIdx(idx) {
         return
 
     let allstops = busStopList.value
+    if (!allstops)
+        return
 
     console.log('genBusStopView', idx, allstops.slice(idx, idx + 3), road)
 

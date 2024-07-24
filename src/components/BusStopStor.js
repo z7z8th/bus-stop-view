@@ -99,4 +99,11 @@ async function dbGetBusInfo(busName) {
   return record && record.info
 }
 
-export { dbAddBusLine, dbDeleteBusLine, dbGetBusList, dbGetBusStops, dbDeleteAllBusLines }
+export {
+  dbAddBusLine,
+  dbDeleteBusLine,
+  dbGetBusList,
+  dbGetBusStops,
+  dbGetBusInfo,
+  dbDeleteAllBusLines
+}
