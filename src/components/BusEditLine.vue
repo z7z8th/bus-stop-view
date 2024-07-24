@@ -70,12 +70,12 @@ function loadLine() {
     eventBus.publish('line-change', busName.value)
 }
 
-function saveLineStr(bname, bstops) {
+async function saveLineStr(bname, bstops) {
     console.log('saveLineStr', bname, bstops)
     let stops = parseBusStopsStr(bstops)
     if (!stops.length)
         return
-    dbAddBusLine(bname, stops)
+    await dbAddBusLine(bname, stops)
     eventBus.publish('message', 'info', '保存成功')
     triggerUpdateBusList()
 }
@@ -84,19 +84,19 @@ function saveLine() {
     saveLineStr(busName.value, busStopListStr.value)
 }
 
-function deleteLine() {
-    dbDeleteBusLine(busName.value)
+async function deleteLine() {
+    await dbDeleteBusLine(busName.value)
     triggerUpdateBusList()
     eventBus.publish('message', 'info', '删除成功')
 }
 
-function deleteAll() {
+async function deleteAll() {
     if (confirmClear.value != 'deleteall') {
         eventBus.publish('message', 'info', '请输入deleteall')
         return
     }
     confirmClear.value = ''
-    dbDeleteAllBusLines()
+    await dbDeleteAllBusLines()
     triggerUpdateBusList()
     eventBus.publish('message', 'info', '清空成功')
 }
@@ -112,7 +112,7 @@ async function loadLineFromFile(triggerSel) {
     let content = await file.text()
     let obj = JSON.parse(content)
     for (let bname in obj) {
-        dbAddBusLine(bname, obj[bname].stops, obj[bname].info)
+        await dbAddBusLine(bname, obj[bname].stops, obj[bname].info)
     }
     eventBus.publish('message', 'info', '保存成功')
     triggerUpdateBusList()
@@ -180,10 +180,10 @@ async function saveLineToFile(savealllines) {
         </div>
     </div>
     <div class="form-control m-2">
-        <div class="input-group mb-3">
+        <div class="input-group">
             <input type="file" class="form-control" id="inputFile" hidden @change="loadLineFromFile">
             <button class="btn btn-primary rounded-start me-3" for="inputFile"
-                @click="() => loadLineFromFile(true)">从文件加载线路</button>
+                @click="() => loadLineFromFile(true)">📦从文件加载线路</button>
             <!-- </div>
         <div class="input-group mb-3"> -->
             <button class="btn btn-primary me-3" for="outputFileAllBuses" @click="() => saveLineToFile(true)">

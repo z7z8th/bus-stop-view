@@ -120,7 +120,7 @@ async function saveRoadName() {
     if (roadName.value)
         stname += '@' + roadName.value
     busStopList.value[stopIdxSaved.value] = stname
-    dbAddBusLine(busName.value, toRaw(busStopList.value))
+    await dbAddBusLine(busName.value, toRaw(busStopList.value))
     eventBus.publish('line-change', busName.value)
 }
 

@@ -46,11 +46,12 @@ async function dbDeleteAllBusLines() {
 
 async function dbAddBusLine(busName, busStopList, busInfo) {
   console.log('dbAddBusLine', busName, busStopList, busInfo)
+  if (!busInfo) {
+    busInfo = await dbGetBusInfo(busName)
+  }
+
   let db = await openDB()
   let store = db.transaction(DB_STORE, 'readwrite').objectStore(DB_STORE)
-  if (!busInfo) {
-    busInfo = dbGetBusInfo(busName)
-  }
 
   //   busAddTestData(store)
   let retBusName = await promiseReq(
