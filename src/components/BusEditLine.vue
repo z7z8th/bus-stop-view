@@ -118,6 +118,26 @@ async function loadLineFromFile(triggerSel) {
     triggerUpdateBusList()
 }
 
+async function loadLineFromJSONFile(url) {
+    console.log('fetching', url)
+
+    let resp = await fetch(url, {
+        credentials: 'omit',
+        referrerPolicy: 'no-referrer',
+    })
+    if (resp.status >= 300) {
+        eventBus.publish('message', 'error', `failed to fetch/parse ${url}, status ${resp.status}`)
+        return
+    }
+
+    let obj = await resp.json()
+    for (let bname in obj) {
+        await dbAddBusLine(bname, obj[bname].stops, obj[bname].info)
+    }
+    eventBus.publish('message', 'info', '保存成功')
+    triggerUpdateBusList()
+}
+
 async function saveLineToFile(savealllines) {
     if (savealllines) {
         let blist = await dbGetBusList()
@@ -194,8 +214,13 @@ async function saveLineToFile(savealllines) {
 
     </div>
     <div class=" form-control m-2">
+        <!-- <button class="btn btn-primary"
+            @click="() => addBusTestData(saveLineStr)">加载徐州2016年7月的公交数据（已有线路会被覆盖）</button><br> -->
         <button class="btn btn-primary"
-            @click="() => addBusTestData(saveLineStr)">加载徐州2016年7月的公交数据（已有线路会被覆盖）</button><br>
+            @click="() => loadLineFromJSONFile('/data/xuzhou-bus-data-2016.07.json')">加载徐州2016年7月的公交数据（已有线路会被覆盖）</button><br>
+        <hr>
+        <button class="btn btn-primary"
+            @click="() => loadLineFromJSONFile('/data/xuzhou-bus-data-2024.07.json')">加载徐州2024年7月的公交数据（已有线路会被覆盖）</button><br>
         <hr>
         <div class="input-group mb-3">
             <label class="input-group-text" for="confirmClear">在右侧输入 deleteall 以确认删除 </label>

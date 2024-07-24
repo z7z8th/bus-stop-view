@@ -33,9 +33,11 @@ let defaultColors = Object.assign({}, toRaw(colors));
 // const showNeighborBusStops = ref(false)
 
 let busNameSaved = ''
+let busDir = 1
 
 function reverseStopList() {
     busStopList.value.reverse()
+    busDir = -busDir
     stopIdxSaved.value = -1
     DrawText(canvas_multi.value, '未选中站点');
     DrawText(canvas_single.value, '未选中站点');
@@ -51,11 +53,14 @@ async function genBusStopList() {
     if (busNameSaved != bname) {
         busNameSaved = bname
         stopIdxSaved.value = -1
+        busDir = 1
         DrawText(canvas_multi.value, '未选中站点');
         DrawText(canvas_single.value, '未选中站点');
     }
 
     busStopList.value = await dbGetBusStops(bname)
+    if (busDir < 0)
+        busStopList.value.reverse()
 }
 
 async function lineChange() {
@@ -120,7 +125,10 @@ async function saveRoadName() {
     if (roadName.value)
         stname += '@' + roadName.value
     busStopList.value[stopIdxSaved.value] = stname
-    await dbAddBusLine(busName.value, toRaw(busStopList.value))
+    let busSLC = Array.from(toRaw(busStopList.value))
+
+    await dbAddBusLine(busName.value, busDir < 0 ? busSLC.reverse() : busSLC)
+
     eventBus.publish('line-change', busName.value)
 }
 

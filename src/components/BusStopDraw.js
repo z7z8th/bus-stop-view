@@ -24,6 +24,12 @@ function splitLongTextToLines(ctx, text, maxWidth) {
   return lines
 }
 
+function getBusName(bname) {
+  let m = bname.match(/^([^(（]+)(\s*[(（].*-.*[）)]).*/)
+  console.log('getBusName', bname, m)
+  return (m && m[1]) || bname
+}
+
 function getStopName(text) {
   if (!text) return text
 
@@ -72,6 +78,7 @@ function DrawTextCentered(ctx, text, area) {
 
 function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
   console.log(`BusStopDraw ${bname}: ${stops}, →${finalStop}, @${road},`, colors)
+  bname = getBusName(bname)
   finalStop = finalStop && `→${finalStop}`
   let sname
   let prname = road
@@ -116,7 +123,7 @@ function BusStopDraw(canvas, bname, stops, finalStop, road, colors) {
   ctx.shadowOffsetY = 2
   ctx.shadowColor = 'rgb(10 10 10/ 100%)'
   ctx.fillStyle = colors.textColor //'rgb(255 255 255/ 100%)'
-  DrawTextCentered(ctx, bname, { x: 0, y: 0, w: bnameWidth, h: bnameHeight })
+  DrawTextCentered(ctx, bname, { x: bnameWidth * 0.05, y: 0, w: bnameWidth * 0.9, h: bnameHeight })
 
   // final stop text
   ctx.font = '50px sans'
