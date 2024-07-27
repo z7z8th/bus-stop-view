@@ -7,8 +7,12 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 // import watch from 'watch'
 import { execSync } from 'node:child_process'
 import fs from 'node:fs'
+import { platform } from 'node:process'
 
 async function postBuildCommands() {
+  if (platform == 'win32') {
+    return
+  }
   if (!fs.existsSync('./dist/')) {
     return
   }
@@ -23,7 +27,7 @@ async function postBuildCommands() {
     cp -r -v win/. dist/. "dist-win/${basename}/.";
     cd dist-win/;
     zip -r "${basename}.zip" "${basename}";
-    rsync -rltv ./ /opt/VM/share/bus-stop-view-dist-win/;
+    [ -d /opt/VM/share ] && rsync -rltv ./ /opt/VM/share/bus-stop-view-dist-win/;
     echo '========== package done =========='
     `)
 
