@@ -1,6 +1,11 @@
 # bus-stop-view
 
-This template should help get you started developing with Vue 3 in Vite.
+Bus stop view generator
+
+## Screenshots
+
+![bus edit line](./images/bus-edit-line.png 'Bus Edit Line')
+![bus stop view](./images/bus-stop-view.png 'Bus Stop View')
 
 ## Recommended IDE Setup
 
@@ -20,9 +25,12 @@ npm install
 
 ```sh
 npm run dev
+open http://localhost:5173
 ```
 
-### Compile and Minify for Production
+### Compile for Production
+
+- On Linux, will generate a zip archive in `./dist-win` for running on windows, double click the `start.bat` to run
 
 ```sh
 npm run build
