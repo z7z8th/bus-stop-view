@@ -30,11 +30,13 @@ open http://localhost:5173
 
 ### Compile for Production
 
-- On Linux, will generate a zip archive in `./dist-win` for running on windows, double click the `start.bat` to run
-
 ```sh
 npm run build
 ```
+
+- On Linux, will generate a zip archive in `./dist-win` for running on windows
+- Run on Windows: `start.bat`
+- Run on Cygwin/MSYS2/Linux: `start.sh`
 
 ### Lint with [ESLint](https://eslint.org/)
 
