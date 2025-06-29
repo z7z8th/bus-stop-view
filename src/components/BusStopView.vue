@@ -167,7 +167,7 @@ function loadColors() {
 loadColors()
 
 function saveColors(ctosave) {
-    console.log('saveColors', ctosave)
+    console.log('saveColors', ctosave || toRaw(colors))
     localStorage.setItem('colors', JSON.stringify(ctosave || toRaw(colors)))
 }
 

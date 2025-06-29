@@ -233,4 +233,18 @@ function DrawText(canvas, msg) {
   DrawTextCentered(ctx, msg, { x: 0, y: 0, w: canvas.width, h: canvas.height })
 }
 
-export { BusStopDraw, DrawText, getStopName, getRoadName }
+
+function DrawTextEx(canvas, msg, font, colors) {
+  let ctx = canvas.getContext('2d')
+  ctx.reset()
+  ctx.font = font
+  ctx.fillStyle = colors.bgColor
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  ctx.fillStyle = colors.textColor
+  ctx.fillStyle += alphaToHex(colors.alpha)
+  console.log('font', font, 'fill style', ctx.fillStyle)
+  DrawTextCentered(ctx, msg, { x: 0, y: 0, w: canvas.width, h: canvas.height })
+}
+
+export { BusStopDraw, DrawText, DrawTextEx, getStopName, getRoadName }
